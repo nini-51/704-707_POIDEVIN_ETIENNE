@@ -1,0 +1,6 @@
+# Env vars for warehouse DELIV2
+
+NIC=wlan2
+SSID=DELIV2
+WIFI_PWD=TopSecretWifiPassphrase
+LAN=fdcb:564e:f5e7:2::

@@ -1,0 +1,96 @@
+// Louis Poidevin - 2023
+
+digraph "Delivery infra" {
+label="Delivery infra"
+tooltip=" "
+labelloc=t
+rankdir=LR
+compound=true
+fontname="'Roboto', sans-serif"
+graph[style=filled fillcolor=grey94]
+node [style=filled fontname="'Roboto', sans-serif" tooltip=" "]
+edge [fontname="'Roboto', sans-serif" tooltip=" "]
+
+subgraph cluster_datacenter {
+label="Datacenter"
+rabbit [
+  target="_top"
+  URL="https://www.rabbitmq.com/"
+  label=<<font color='blue'><u>RabbitMQ</u></font>>
+]
+beaver [label="AMQP bridge"]
+otter [label="MariaDB"]
+octopus [label="REST API"]
+fox [label="WebApp"]
+
+ldap [label="LDAP"]
+}
+
+subgraph cluster_warehouse {
+label="Warehouse"
+mosquitto [
+  target="_top"
+  URL="https://www.mosquitto.org/"
+  label=<<font color='blue'><u>Mosquitto</u></font>>
+]
+dnsmasq [
+  target="_top"
+  URL="https://thekelleys.org.uk/dnsmasq/doc.html"
+  label=<<font color='blue'><u>dnsmasq</u></font>>
+]
+hostapd [
+  target="_top"
+  URL="https://w1.fi/hostapd/"
+  label=<<font color='blue'><u>hostapd</u></font>>
+]
+bridge [label="MQTT bridge"]
+
+subgraph cluster_package {
+  label="Package"
+  pyapp [label="pyapp"]
+  cron [label="cron"]
+  wpa_supplicant [
+    target="_top"
+    URL="https://w1.fi/wpa_supplicant/"
+    label=<<font color='blue'><u>wpa supplicant</u></font>>
+  ]
+}
+}
+
+subgraph cluster_deliver {
+  label="Deliver"
+  telapp [label="Tel app"]
+}
+
+client [label="Client" shape=box]
+
+// Package process
+
+cron -> wpa_supplicant [constraint=false]
+wpa_supplicant -> hostapd [dir=both color="black:black"]
+wpa_supplicant -> dnsmasq [dir=both color="black:black" ltail=cluster_package]
+wpa_supplicant -> pyapp [constraint=false]
+pyapp -> mosquitto
+
+// Warehouse process
+
+mosquitto -> bridge [constraint=false]
+//octopus -> bridge [style=invis]
+bridge -> octopus
+
+// Datacenter process
+
+octopus -> otter
+fox -> otter [dir=back]
+rabbit -> beaver [dir=both color="black:black"]
+rabbit -> ldap [dir=back]
+beaver -> octopus
+
+// Deliver process
+
+telapp -> rabbit [label="AMQP TLS" minlen=2 dir=both color="black:black"]
+
+// Client process
+
+client -> fox [dir=back]
+}

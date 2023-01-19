@@ -1,0 +1,5 @@
+# Env vars for package FR0001
+
+NIC=wlan6
+SSID=DELIV1
+WIFI_PWD=TopSecretWifiPassphrase

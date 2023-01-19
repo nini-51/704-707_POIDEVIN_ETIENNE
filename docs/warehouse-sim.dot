@@ -1,0 +1,100 @@
+// Louis Poidevin - 2023
+
+digraph "Warehouse simulation" {
+label="Warehouse simulation"
+tooltip=" "
+labelloc=t
+rankdir=LR
+compound=true
+fontname="'Roboto', sans-serif"
+graph[style=filled fillcolor=grey94]
+node [style=filled fontname="'Roboto', sans-serif" tooltip=" "]
+edge [fontname="'Roboto', sans-serif" tooltip=" "]
+
+subgraph cluster_warehouse {
+label="Warehouse"
+mosquitto [
+  target="_top"
+  URL="https://www.mosquitto.org/"
+  label=<<font color='blue'><u>Mosquitto</u></font>>
+]
+radvd [
+  target="_top"
+  URL="https://radvd.litech.org/"
+  label=<<font color='blue'><u>radvd</u></font>>
+]
+bind9 [
+  target="_top"
+  URL="https://www.isc.org/bind/"
+  label=<<font color='blue'><u>bind9</u></font>>
+]
+hostapd [
+  target="_top"
+  URL="https://w1.fi/hostapd/"
+  label=<<font color='blue'><u>hostapd</u></font>>
+]
+bridge [label="MQTT bridge"]
+wlan0 [label="wlan0" shape=box]
+}
+
+hwsim0 [
+  target="_top"
+  URL="https://www.kernel.org/doc/html/latest/networking/mac80211_hwsim/mac80211_hwsim.html"
+  label=<<font color='blue'><u>mac80211_hwsim</u></font>>
+  shape=box
+]
+
+subgraph cluster_package1 {
+  label="Package"
+  pyapp1 [label="pyapp"]
+  cron1 [label="cron"]
+  wpa_supplicant1 [
+    target="_top"
+    URL="https://w1.fi/wpa_supplicant/"
+    label=<<font color='blue'><u>wpa supplicant</u></font>>
+  ]
+  wlan1 [label="wlan0" shape=box]
+}
+
+subgraph cluster_package2 {
+  label="Package"
+  pyapp2 [label="pyapp"]
+  cron2 [label="cron"]
+  wpa_supplicant2 [
+    target="_top"
+    URL="https://w1.fi/wpa_supplicant/"
+    label=<<font color='blue'><u>wpa supplicant</u></font>>
+  ]
+  wlan2 [label="wlan0" shape=box]
+}
+
+
+octopus [label="REST API" shape=box]
+
+// Packages process
+
+//hwsim0 -> wlan1 [style=invis]
+wlan1 -> hwsim0 [dir=both color="black:black"]
+cron1 -> wpa_supplicant1 [constraint=false]
+wpa_supplicant1 -> wlan1 [dir=both color="black:black"]
+wpa_supplicant1 -> pyapp1
+pyapp1 -> mosquitto [style=dashed]
+
+//hwsim0 -> wlan2 [style=invis]
+wlan2 -> hwsim0 [dir=both color="black:black"]
+cron2 -> wpa_supplicant2 [constraint=false]
+wpa_supplicant2 -> wlan2 [dir=both color="black:black"]
+wpa_supplicant2 -> pyapp2
+pyapp2 -> mosquitto [style=dashed]
+
+hwsim0 -> wlan0 [dir=both color="black:black"]
+
+// Warehouse process
+
+wlan0 -> hostapd [dir=both color="black:black"]
+wlan0 -> radvd [dir=both color="black:black"]
+wlan0 -> bind9 [dir=both color="black:black"]
+mosquitto -> bridge
+bridge -> octopus
+
+}
