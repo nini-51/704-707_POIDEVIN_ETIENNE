@@ -1,3 +1,8 @@
+git remote add origin git@github.com:nini-51/CommeTuVeux.git
+git branch -M main
+git push -u origin main
+
+
 OBJ qui envoie une info --> son login et si c'est init ou update
 
 mqtt bridge --> ajoute les infos manquantes
@@ -10,13 +15,13 @@ PUT --> UPDATE
 	| timestanp (iso 8601)
 	| satus
 		|_> in transit
-		
+
 rest recoi et enregistre dans DB
 application bweb recup et envoie page client
 
 
 
-livreur --> 
+livreur -->
 	ENREGISTREMENT
 		obj_id
 		livr_id

@@ -36,8 +36,10 @@ def do_json(client, userdata, msg):
     lock.acquire()
     if B[2]=="init":
         request.append("post")
-    else:
+    elif(B[2]=="update"):
         request.append("put")
+    else:
+        exit("Etat inconnu")
     request.append("http://datacenter_web_1:5000/objects/obj"+str(B[1]))
     request.append(a)
     #debloque ressource
