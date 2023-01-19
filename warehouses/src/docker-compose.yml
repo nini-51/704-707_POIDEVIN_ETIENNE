@@ -4,12 +4,11 @@ services:
   objet:
     #image: python:3
     build:
-     context: objet
-     dockerfile: Dockerfile
+     context: package
     networks:
     - objet
     volumes:
-      - "$PWD/objet/app:/srv/:ro"
+      - "$PWD/warehouse/app:/srv/:ro"
   #ici le container pour l'agent MQTT on utilise masquitto
   mosquitto:
     image: eclipse-mosquitto
@@ -25,13 +24,12 @@ services:
   entrepot:
     # image: python:3
     build:
-     context: ./
-     dockerfile: entrepot/Dockerfile
+     context: warehouse
     networks:
       - entrepot
       - datacenter
     volumes:
-      - "$PWD/entrepot/app/:/srv/:ro"
+      - "$PWD/warehouse/app/:/srv/:ro"
 
 networks:
   objet:

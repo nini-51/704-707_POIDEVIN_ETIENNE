@@ -3,7 +3,6 @@ services:
   flask:
     build:
       context: rest
-      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     volumes:
@@ -16,7 +15,6 @@ services:
   web:
     build:
       context: rest
-      dockerfile: Dockerfile
     ports:
       - "5001:5000"
     volumes:
