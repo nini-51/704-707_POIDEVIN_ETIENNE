@@ -19,7 +19,7 @@ def on_connect(client, userdata, flags, rc):
 
 
 # | Package-id
-# 	|  warehouse
+# 	|  warehouse_id
 # 	| timestanp (iso 8601)
 # 	| satus
 # 		|_> in transit
@@ -40,7 +40,7 @@ def do_json(client, userdata, msg):
         request.append("put")
     else:
         exit("Etat inconnu")
-    request.append("http://datacenter_web_1:5000/objects/obj"+str(B[1]))
+    request.append("http://datacenter_flask_1:5000/objects/"+str(B[1]))
     request.append(a)
     #debloque ressource
     lock.release()
@@ -48,7 +48,7 @@ def do_json(client, userdata, msg):
 #fonction multi-threadee
 def test_connexion():
     while(True):
-        r=requests.get('http://datacenter_web_1:5000')
+        r=requests.get('http://datacenter_flask_1:5000')
 
         if (r.status_code == requests.codes.ok):
             lock.acquire()

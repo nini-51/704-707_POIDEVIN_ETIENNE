@@ -23,8 +23,7 @@ services:
       - "$PWD/web/app/:/src/app:ro"
       - "$PWD/db/:/src/db/:ro"
     networks:
-      - iot_datacenter
-      - backend
+      - frontend
 
 
   #
