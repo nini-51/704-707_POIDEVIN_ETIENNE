@@ -1,0 +1,55 @@
+---
+services:
+  flask:
+    build:
+      context: rest
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - "$PWD/rest/app/:/src/app:ro"
+      - "$PWD/db/:/src/db:rw"
+    networks:
+      - iot_datacenter
+      - backend
+
+  web:
+    build:
+      context: rest
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    volumes:
+      - "$PWD/web/app/:/src/app:ro"
+      - "$PWD/db/:/src/db/:ro"
+    networks:
+      - iot_datacenter
+      - backend
+
+
+  #
+  # db:
+  #   image: mariadb
+  #   restart: always
+  #   environment:
+  #     MARIADB_ROOT_PASSWORD: my-secret-pw
+  #     # MARIADB_MYSQL_LOCALHOST_USER: 1
+  #     MARIADB_USER: user
+  #     MARIADB_PASSWORD: user
+  #     MARIADB_DATABASE: colis
+  #   networks:
+  #     - db
+  #
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #   - "8080:8080"
+
+
+
+networks:
+  iot_datacenter:
+    external: true
+  frontend:
+  backend:

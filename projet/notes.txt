@@ -1,0 +1,33 @@
+OBJ qui envoie une info --> son login et si c'est init ou update
+
+mqtt bridge --> ajoute les infos manquantes
+envoie json à rest :
+
+POST --> create
+PUT --> UPDATE
+	| Package-id --> URL
+	| warehouse_id
+	| timestanp (iso 8601)
+	| satus
+		|_> in transit
+		
+rest recoi et enregistre dans DB
+application bweb recup et envoie page client
+
+
+
+livreur --> 
+	ENREGISTREMENT
+		obj_id
+		livr_id
+		timestamp
+	MISE à JOUR status GPS
+		liste id_obj
+		livr_id
+		timestamp
+		GPS
+	FIN_LIVARISON
+		obj_id
+		etat (delivré/retourné)
+		livr_id
+		timestamp
