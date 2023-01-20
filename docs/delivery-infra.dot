@@ -19,7 +19,7 @@ rabbit [
   label=<<font color='blue'><u>RabbitMQ</u></font>>
 ]
 beaver [label="AMQP bridge"]
-otter [label="MariaDB"]
+feather [label="SQLite" shape=folder]
 octopus [label="REST API"]
 fox [label="WebApp"]
 
@@ -80,8 +80,8 @@ bridge -> octopus
 
 // Datacenter process
 
-octopus -> otter
-fox -> otter [dir=back]
+octopus -> feather
+fox -> feather [dir=back]
 rabbit -> beaver [dir=both color="black:black"]
 rabbit -> ldap [dir=back]
 beaver -> octopus
