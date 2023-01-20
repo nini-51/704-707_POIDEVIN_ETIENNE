@@ -37,3 +37,12 @@ make mrproper
 - [ ] Define fqdn of REST API in warehouse app (require to finish dc infra)
 - [ ] Delete unnecessary files (.old files)
 - [ ] Clean code and comment it
+- [ ] Improve README and docs
+
+## Delivery section
+
+Soon
+
+### TODO
+
+- [ ] ...
