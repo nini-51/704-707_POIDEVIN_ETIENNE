@@ -1,9 +1,10 @@
-.PHONY: build-infra init-packages clean
+.PHONY: build-infra init-packages mrproper
 .DEFAULT_GOAL = build-infra
 
 INFRA=$(subst env/,/var/lib/lxc/,$(wildcard env/warehouse-*))
 PACKAGES=$(subst env/,/var/lib/lxc/,$(wildcard env/package-*))
 RADIO=$(shell ls env/ | wc -l)
+LXC_LIST=$(shell ls env/)
 
 /usr/bin/lxc-create:
 	apt-get install -qq lxc iw rsync
@@ -28,5 +29,7 @@ build-infra: $(INFRA)
 
 init-packages: $(PACKAGES)
 
-clean:
+mrproper:
+	$(foreach id,$(shell ls env/),$(shell lxc-stop -n $(id) 2> /dev/null && lxc-destroy -n $(id)))
+	$(foreach id,package warehouse,$(shell lxc-destroy -n base-$(id)))
 	modprobe -r mac80211_hwsim
