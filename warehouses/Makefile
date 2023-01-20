@@ -4,7 +4,6 @@
 INFRA=$(subst env/,/var/lib/lxc/,$(wildcard env/warehouse-*))
 PACKAGES=$(subst env/,/var/lib/lxc/,$(wildcard env/package-*))
 RADIO=$(shell ls env/ | wc -l)
-LXC_LIST=$(shell ls env/)
 
 /usr/bin/lxc-create:
 	apt-get install -qq lxc iw rsync

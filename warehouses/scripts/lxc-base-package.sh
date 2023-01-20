@@ -4,7 +4,7 @@ name='base-package'
 codename='bullseye'
 arch='amd64'
 
-packages_path='src/package'
+src_path='src/package'
 
 if [[ -d "/var/lib/lxc/$name" ]]; then
 	echo "/var/lib/lxc/$name already exists!"
@@ -41,8 +41,8 @@ lxc-attach -n $name -- /usr/bin/bash << EOF
 apt-get -q=2 install python3 python3-pip
 EOF
 
-# Setup app in /srv folder of lxc container
-rsync -av $packages_path/ /var/lib/lxc/$name/rootfs/srv/
+# Setup app in /srv folder
+rsync -av $src_path/ /var/lib/lxc/$name/rootfs/srv/
 lxc-attach -n $name -- /usr/bin/bash << EOF
 pip3 install --no-cache-dir --upgrade -r /srv/requirements.txt
 EOF

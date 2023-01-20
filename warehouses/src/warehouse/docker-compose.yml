@@ -1,0 +1,20 @@
+---
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    volumes:
+      - "$PWD/warehouse/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - warehouse
+  entrepot:
+    image: local/warehouse-app
+    build: ./
+    networks:
+      - warehouse
+    volumes:
+      - "$PWD/warehouse/app:/srv:ro"
+networks:
+  warehouse:

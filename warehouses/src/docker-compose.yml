@@ -13,7 +13,7 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     volumes:
-      - "$PWD/mosquitto:/mosquitto/config:ro"
+      - "$PWD/warehouse/mosquitto:/mosquitto/config:ro"
     ports:
       - "1883:1883"
       - "9001:9001"
@@ -29,7 +29,7 @@ services:
       - entrepot
       - datacenter
     volumes:
-      - "$PWD/warehouse/app/:/srv/:ro"
+      - "$PWD/warehouse/app:/srv:ro"
 
 networks:
   objet:

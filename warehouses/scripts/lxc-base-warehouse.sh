@@ -4,6 +4,8 @@ name='base-warehouse'
 codename='bullseye'
 arch='amd64'
 
+src_path='src/warehouse'
+
 if [[ -d "/var/lib/lxc/$name" ]]; then
 	echo "/var/lib/lxc/$name already exists!"
 	exit 0
@@ -163,6 +165,9 @@ rm /var/lib/lxc/$name/rootfs/etc/resolv.conf
 cat << EOF > /var/lib/lxc/$name/rootfs/etc/resolv.conf
 nameserver ::1
 EOF
+
+# Setup app in /srv folder
+rsync -av $src_path/ /var/lib/lxc/$name/rootfs/srv/
 
 # Stop container
 lxc-stop -n $name
