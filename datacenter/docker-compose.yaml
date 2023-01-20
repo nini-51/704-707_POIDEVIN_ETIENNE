@@ -1,8 +1,7 @@
 ---
 services:
   flask:
-    build:
-      context: rest
+    build: rest
     ports:
       - "5000:5000"
     volumes:
@@ -13,8 +12,7 @@ services:
       - backend
 
   web:
-    build:
-      context: web
+    build: web
     ports:
       - "5001:5000"
     volumes:

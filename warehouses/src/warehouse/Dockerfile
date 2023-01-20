@@ -1,6 +1,12 @@
-FROM python:3
+FROM python:3-slim
 
-RUN pip install paho-mqtt
-RUN pip3 install requests
+LABEL maintainer="Louis Poidevin <louis.poidevin@etudiant.univ-reims.fr>"
 
-ENTRYPOINT ["tail", "-f"]
+WORKDIR /srv
+
+COPY ./requirements.txt /srv/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+ENTRYPOINT ["python3"]
+CMD ["app/main.py"]

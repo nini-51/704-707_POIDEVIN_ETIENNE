@@ -3,10 +3,9 @@ services:
   #ici le container pour l'iot client MQTT
   objet:
     #image: python:3
-    build:
-     context: package
+    build: package
     networks:
-    - objet
+      - objet
     volumes:
       - "$PWD/warehouse/app:/srv/:ro"
   #ici le container pour l'agent MQTT on utilise masquitto
@@ -23,8 +22,7 @@ services:
   #ici le container pour le serveur de l'entrepot client MQTT
   entrepot:
     # image: python:3
-    build:
-     context: warehouse
+    build: warehouse
     networks:
       - entrepot
       - datacenter
