@@ -1,6 +1,6 @@
 # Env vars for warehouse PROD1
 
 NIC=wlan0
+LAN=fdcb:564e:f5e7:0::
 SSID=PROD
 WIFI_PWD=TopSecretWifiPassphrase
-LAN=fdcb:564e:f5e7:0::

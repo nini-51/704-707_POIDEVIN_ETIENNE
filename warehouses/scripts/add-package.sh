@@ -41,46 +41,49 @@ function main()
 {
     parse_options "$@"
 
-    PACKAGE_ID=$(echo $ENV_FILE | cut -d/ -f2)
-    NIC=wlan0
+    # Default vars
+    NIC=wlan1
     SSID=DEMO
-    WIFI_PWD=Password
+    WIFI_PWD=WifiPassphrase
 
-    if [[ -d "/var/lib/lxc/$PACKAGE_ID" ]]; then
-      echo "/var/lib/lxc/$PACKAGE_ID already exists!"
+    CONTAINER_ID=$(echo $ENV_FILE | cut -d/ -f2)
+    PACKAGE_ID=$(echo ${CONTAINER_ID^^} | cut -d'-' -f2)
+
+    if [[ -d "/var/lib/lxc/$CONTAINER_ID" ]]; then
+      echo "$PACKAGE_ID already exists!"
       exit 0
     fi
 
     source $ENV_FILE
 
     # Create new package based on package-base
-    lxc-copy -n base-package -N $PACKAGE_ID
+    lxc-copy -n base-package -N $CONTAINER_ID
 
     # Configure wireless nic
-    sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$PACKAGE_ID/rootfs/etc/systemd/network/wlan0.network
-    mv /var/lib/lxc/$PACKAGE_ID/rootfs/etc/systemd/network/{wlan0,$NIC}.network
+    sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/wlan0.network
+    mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/{wlan0,$NIC}.network
 
     # Configure wpa supplicant
-    sed -i "s/MYSSID/$SSID/" /var/lib/lxc/$PACKAGE_ID/rootfs/etc/wpa_supplicant/wpa_supplicant.conf
-    sed -i "s/Password/$WIFI_PWD/" /var/lib/lxc/$PACKAGE_ID/rootfs/etc/wpa_supplicant/wpa_supplicant.conf
-    mv /var/lib/lxc/$PACKAGE_ID/rootfs/etc/wpa_supplicant/{wpa_supplicant,wpa_supplicant-$NIC}.conf
+    sed -i "s/MYSSID/$SSID/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/wpa_supplicant/wpa_supplicant.conf
+    sed -i "s/Password/$WIFI_PWD/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/wpa_supplicant/wpa_supplicant.conf
+    mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/wpa_supplicant/{wpa_supplicant,wpa_supplicant-$NIC}.conf
 
     # Configure cron tasks
-    sed -i "s/wlan0/$NIC/g" /var/lib/lxc/$PACKAGE_ID/rootfs/srv/scripts/wake-up.sh
-    sed -i "s/packageid/$PACKAGE_ID/g" /var/lib/lxc/$PACKAGE_ID/rootfs/srv/scripts/wake-up.sh
+    sed -i "s/wlan0/$NIC/g" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/scripts/wake-up.sh
+    sed -i "s/packageid/$PACKAGE_ID/g" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/scripts/wake-up.sh
 
     # Start container
-    lxc-start -n $PACKAGE_ID
-    lxc-wait -n $PACKAGE_ID -s RUNNING
+    lxc-start -n $CONTAINER_ID
+    lxc-wait -n $CONTAINER_ID -s RUNNING
 
     # Move nic info container
     PHYS=$(iw dev | grep -B1  $NIC | head -n1 | sed 's/#//')
-    PID=$(lxc-info -n $PACKAGE_ID | grep PID | grep -Po '[0-9]+$')
+    PID=$(lxc-info -n $CONTAINER_ID | grep PID | grep -Po '[0-9]+$')
     iw phy $PHYS set netns $PID
 
     sleep 3
 
-    lxc-attach -n $PACKAGE_ID -- /usr/bin/bash <<- EOF
+    lxc-attach -n $CONTAINER_ID -- /usr/bin/bash <<- EOF
     systemctl enable wpa_supplicant@$NIC.service
     systemctl restart systemd-networkd.service
     systemctl restart wpa_supplicant@$NIC.service
@@ -88,11 +91,13 @@ EOF
 
     sleep 10
 
-    DNS=$(lxc-attach -n $PACKAGE_ID -- /usr/bin/resolvectl dns | grep -o 'fd.*')
-    mv /var/lib/lxc/$PACKAGE_ID/rootfs/etc/resolv.{conf,conf.old}
-    echo "nameserver $DNS" | tee /var/lib/lxc/$PACKAGE_ID/rootfs/etc/resolv.conf
+    DNS=$(lxc-attach -n $CONTAINER_ID -- /usr/bin/resolvectl dns | grep -o 'fd.*')
+    mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/resolv.{conf,conf.old}
+    echo "nameserver $DNS" | tee /var/lib/lxc/$CONTAINER_ID/rootfs/etc/resolv.conf
 
-    lxc-attach -n $PACKAGE_ID -- /usr/bin/python3 /srv/app/main.py $PACKAGE_ID init
+    sleep 5
+
+    lxc-attach -n $CONTAINER_ID -- /usr/bin/python3 /srv/app/main.py $PACKAGE_ID init
 
     exit 0
 }

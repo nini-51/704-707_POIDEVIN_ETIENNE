@@ -41,46 +41,51 @@ function main()
 {
     parse_options "$@"
 
-    WAREHOUSE_ID=$(echo $ENV_FILE | cut -d/ -f2)
-    SSID=DEMO
+    # Default vars
     NIC=wlan0
+    LAN=2001:db8:1:0::
+    SSID=DEMO
+    WIFI_PWD=WifiPassphrase
 
-    if [[ -d "/var/lib/lxc/$WAREHOUSE_ID" ]]; then
-      echo "/var/lib/lxc/$WAREHOUSE_ID already exists!"
+    CONTAINER_ID=$(echo $ENV_FILE | cut -d/ -f2)
+    # WAREHOUSE_ID=$(echo ${CONTAINER_ID^^} | cut -d'-' -f2)
+
+    if [[ -d "/var/lib/lxc/$CONTAINER_ID" ]]; then
+      echo "/var/lib/lxc/$CONTAINER_ID already exists!"
       exit 0
     fi
 
     source $ENV_FILE
 
     # Create new warehouse based on warehouse-base
-    lxc-copy -n base-warehouse -N $WAREHOUSE_ID
+    lxc-copy -n base-warehouse -N $CONTAINER_ID
 
     # Configure radvd
-    sed -i "s/interface wlan0/interface $NIC/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/radvd.conf
-    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/radvd.conf
-    sed -i "s/2001:db8::/$LAN/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/radvd.conf
+    sed -i "s/interface wlan0/interface $NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/radvd.conf
+    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/radvd.conf
+    sed -i "s/2001:db8::/$LAN/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/radvd.conf
 
     # Configure hostapd
-    sed -i "s/interface=.*/interface=$NIC/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/hostapd/hostapd.conf
-    sed -i "s/YourWiFiName/$SSID/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/hostapd/hostapd.conf
-    sed -i "s/Somepassphrase/$WIFI_PWD/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/hostapd/hostapd.conf
+    sed -i "s/interface=.*/interface=$NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/hostapd/hostapd.conf
+    sed -i "s/YourWiFiName/$SSID/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/hostapd/hostapd.conf
+    sed -i "s/Somepassphrase/$WIFI_PWD/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/hostapd/hostapd.conf
 
     # Configure bind9
-    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/bind/named.conf.options
-    sed -i "s/2001:db8:1:0::/$LAN/g" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/bind/warehouse.local.db
+    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/bind/named.conf.options
+    sed -i "s/2001:db8:1:0::/$LAN/g" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/bind/warehouse.local.db
 
     # Configure wireless nic
-    sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/systemd/network/wlan0.network
-    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/systemd/network/wlan0.network
-    mv /var/lib/lxc/$WAREHOUSE_ID/rootfs/etc/systemd/network/{wlan0,$NIC}.network
+    sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/wlan0.network
+    sed -i "s/2001:db8:1:0::/$LAN/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/wlan0.network
+    mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/{wlan0,$NIC}.network
 
     # Start container
-    lxc-start -n $WAREHOUSE_ID
-    lxc-wait -n $WAREHOUSE_ID -s RUNNING
+    lxc-start -n $CONTAINER_ID
+    lxc-wait -n $CONTAINER_ID -s RUNNING
 
     # Move nic into lxc container
     PHYS=$(iw dev | grep -B1  $NIC | head -n1 | sed 's/#//')
-    PID=$(lxc-info -n $WAREHOUSE_ID | grep PID | grep -Po '[0-9]+$')
+    PID=$(lxc-info -n $CONTAINER_ID | grep PID | grep -Po '[0-9]+$')
     iw phy $PHYS set netns $PID
 
     exit 0
