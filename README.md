@@ -35,6 +35,7 @@ make mrproper
 - [ ] Clean msg send by pacakges to mqtt broker
 - [ ] Define warehouse id in its app via docker env var in docker-compose.yml
 - [ ] Define fqdn of REST API in warehouse app (require to finish dc infra)
+- [ ] QoS management (package - broker - bridge)
 - [ ] Delete unnecessary files (.old files)
 - [ ] Clean code and comment it
 - [ ] Improve README and docs
@@ -43,6 +44,12 @@ make mrproper
 
 Soon
 
+![https://www.rabbitmq.com/getstarted.html]()
+
 ### TODO
 
-- [ ] ...
+- [ ] Auth backend (in rabbitmq)
+- [ ] Reliability (ack)
+- [ ] Auth backend
+- [ ] Auth backend
+- [ ] Auth backend
