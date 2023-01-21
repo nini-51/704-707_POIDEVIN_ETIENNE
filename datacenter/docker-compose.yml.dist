@@ -7,7 +7,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     volumes:
-      - "$PWD/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro"
+      - "./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro"
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       timeout: 10s
@@ -21,7 +21,7 @@ services:
       - amqp
       - internal
     volumes:
-      - "$PWD/amqp-app:/srv/app:ro"
+      - "./amqp-app:/srv/app:ro"
     depends_on:
       rabbit:
         condition: service_healthy
@@ -59,7 +59,7 @@ services:
       - database
       - vpn
     volumes:
-      - "$PWD/amqp-app:/srv/app:ro"
+      - "./amqp-app:/srv/app:ro"
     depends_on:
       otter:
         condition: service_healthy
@@ -73,7 +73,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "$PWD/amqp-app:/srv/app:ro"
+      - "./amqp-app:/srv/app:ro"
     depends_on:
       otter:
         condition: service_healthy

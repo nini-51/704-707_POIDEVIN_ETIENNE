@@ -1,7 +1,9 @@
-FROM python
+FROM python:3-slim
+
 ADD . /code
 WORKDIR /code
 
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 ENTRYPOINT ["tail", "-f"]

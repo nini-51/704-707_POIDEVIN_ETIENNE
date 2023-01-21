@@ -5,8 +5,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - "$PWD/rest/app:/src/app:ro"
-      - "$PWD/db:/src/db:rw"
+      - "./rest/app:/src/app:ro"
+      - "./db:/src/db:rw"
     networks:
       - iot_datacenter
       - backend
@@ -16,8 +16,8 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - "$PWD/web/app:/src/app:ro"
-      - "$PWD/db:/src/db:ro"
+      - "./web/app:/src/app:ro"
+      - "./db:/src/db:ro"
     networks:
       - frontend
 

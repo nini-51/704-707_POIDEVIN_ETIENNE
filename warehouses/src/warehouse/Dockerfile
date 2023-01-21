@@ -2,11 +2,10 @@ FROM python:3-slim
 
 LABEL maintainer="Louis Poidevin <louis.poidevin@etudiant.univ-reims.fr>"
 
-WORKDIR /srv
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY ./requirements.txt /srv/requirements.txt
-
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+COPY ./app /app
 
 ENTRYPOINT ["python3"]
-CMD ["app/main.py"]
+CMD ["/app/main.py"]

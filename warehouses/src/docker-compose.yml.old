@@ -7,12 +7,12 @@ services:
     networks:
       - objet
     volumes:
-      - "$PWD/warehouse/app:/srv/:ro"
+      - "./warehouse/app:/srv/:ro"
   #ici le container pour l'agent MQTT on utilise masquitto
   mosquitto:
     image: eclipse-mosquitto
     volumes:
-      - "$PWD/warehouse/mosquitto:/mosquitto/config:ro"
+      - "./warehouse/mosquitto:/mosquitto/config:ro"
     ports:
       - "1883:1883"
       - "9001:9001"
@@ -27,7 +27,7 @@ services:
       - entrepot
       - datacenter
     volumes:
-      - "$PWD/warehouse/app:/srv:ro"
+      - "./warehouse/app:/srv:ro"
 
 networks:
   objet:

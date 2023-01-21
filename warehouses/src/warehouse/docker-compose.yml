@@ -14,7 +14,7 @@ services:
     image: local/warehouse-app
     build: .
     volumes:
-      - "./app:/srv/app:ro"
+      - "./app:/srv/app:ro" # for dev purpose
     networks:
       - warehouse
     depends_on:
