@@ -5,8 +5,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - "./rest/app:/src/app:ro"
-      - "./db:/src/db:rw"
+      - ./rest/app:/src/app:ro
+      - ./db:/src/db:rw
     networks:
       - iot_datacenter
       - backend
@@ -16,10 +16,37 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - "./web/app:/src/app:ro"
-      - "./db:/src/db:ro"
+      - ./web/app:/src/app:ro
+      - ./db:/src/db:ro
     networks:
       - frontend
+
+  rabbit:
+    image: rabbitmq:3
+    restart: always
+    ports:
+      - "5672:5672"
+    networks:
+      - amqp
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      timeout: 10s
+      interval: 30s
+      retries: 3
+
+  bridge-amqp:
+    build: bridge-amqp
+    restart: always
+    environment:
+      AMQP_SERVER: rabbit
+    volumes:
+      - ./bridge-amqp/src/app:/app:ro
+    networks:
+      - amqp
+      - backend
+    depends_on:
+      rabbit:
+        condition: service_healthy
 
   #
   # db:
@@ -47,3 +74,4 @@ networks:
     external: true
   frontend:
   backend:
+  amqp:

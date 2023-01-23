@@ -19,7 +19,7 @@ services:
       - warehouse
     environment:
       WAREHOUSE_ID: DEMO
-      API_SERVER: datacenter_flask_1
+      API_SERVER: api.yousk.fr
     depends_on:
       - mosquitto
 

@@ -5,9 +5,10 @@ LABEL maintainer="Louis Poidevin <louis.poidevin@etudiant.univ-reims.fr>"
 COPY src/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY src/app /app
+# COPY app /app
 
-ENV AMQP_SERVER="localhost"
+ENV AMQP_SERVER=localhost
 
-ENTRYPOINT ["python", "/app/main.py"]
-CMD ["DEMO"]
+CMD ["tail", "-f"]
+# ENTRYPOINT ["python"]
+# CMD ["/app/main.py"]

@@ -4,7 +4,23 @@ Soon
 
 ## Datacenter section
 
-Soon
+```bash
+# Install docker
+apt-get update
+apt-get install -y ca-certificates curl gnupg lsb-release
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# ...
+...
+```
+
+Source : [https://docs.docker.com/engine/install/debian/]()
 
 ### TODO
 
@@ -42,14 +58,20 @@ make mrproper
 
 ## Delivery section
 
-Soon
+```bash
+# Ensure that scripts are executable
+chmod u+x delivery/new-delivery.sh
 
-![https://www.rabbitmq.com/getstarted.html]()
+# Launch new deliveryman
+cd delivery
+./new-delivery.sh -i john -w deliv1 -s amqp-broker.yousk.fr
+```
+
+- [https://www.rabbitmq.com/getstarted.html]()
+- [https://graphhopper.com/maps/?profile=small_truck&layer=OpenStreetMap]()
 
 ### TODO
 
 - [ ] Auth backend (in rabbitmq)
+- [ ] TLS connection
 - [ ] Reliability (ack)
-- [ ] Auth backend
-- [ ] Auth backend
-- [ ] Auth backend
