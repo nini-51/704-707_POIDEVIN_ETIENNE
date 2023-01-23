@@ -1,23 +1,33 @@
 import paho.mqtt.client as paho
-import sys
+import sys, os
 
-broker="mqtt.warehouse.local"
-port=1883
-id=sys.argv[0]
-status=sys.argv[1]
+broker = "mqtt.warehouse.local"
+
+try:
+    PACKAGE_ID = os.environ['PACKAGE_ID']
+except KeyError:
+    print('[error]: `PACKAGE_ID` environment variable required')
+    sys.exit(1)
+
+try:
+    state = sys.argv[1]
+except IndexError:
+    print('[error]: `state` argument required')
+    sys.exit(1)
 
 #create function for callback
 def on_publish(client,userdata,result):
-    print("data published \n")
+    print("data published")
     pass
 
-if(len(sys.argv)!=2):
-    exit("les arguments ne sont pas bons !")
-
 #create client object
-client1= paho.Client("1)
+client1 = paho.Client(PACKAGE_ID)
 #assign function to callback
 client1.on_publish = on_publish
 #establish connection
-client1.connect(broker, 1883, 60)
-ret= client1.publish("test",","+str(id)+","+status)
+try:
+    client1.connect(broker, 1883, 60)
+except:
+    sys.exit(1)
+
+ret = client1.publish(f"test,{PACKAGE_ID},{state}")

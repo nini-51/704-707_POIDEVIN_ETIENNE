@@ -59,6 +59,9 @@ function main()
     # Create new package based on package-base
     lxc-copy -n base-package -N $CONTAINER_ID
 
+    # Define package id as environment variable
+    echo "lxc.environment = PACKAGE_ID=$PACKAGE_ID" >> /var/lib/lxc/$CONTAINER_ID/config
+
     # Configure wireless nic
     sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/wlan0.network
     mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/{wlan0,$NIC}.network
@@ -68,9 +71,8 @@ function main()
     sed -i "s/Password/$WIFI_PWD/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/wpa_supplicant/wpa_supplicant.conf
     mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/wpa_supplicant/{wpa_supplicant,wpa_supplicant-$NIC}.conf
 
-    # Configure cron tasks
+    # Configure cron script
     sed -i "s/wlan0/$NIC/g" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/scripts/wake-up.sh
-    sed -i "s/packageid/$PACKAGE_ID/g" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/scripts/wake-up.sh
 
     # Start container
     lxc-start -n $CONTAINER_ID
@@ -97,7 +99,7 @@ EOF
 
     sleep 5
 
-    lxc-attach -n $CONTAINER_ID -- /usr/bin/python3 /srv/app/main.py $PACKAGE_ID init
+    lxc-attach -n $CONTAINER_ID -- /usr/bin/python3 /srv/app/main.py init
 
     exit 0
 }

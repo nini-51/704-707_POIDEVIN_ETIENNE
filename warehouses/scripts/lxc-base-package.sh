@@ -89,7 +89,7 @@ function main()
 	if [[ $(ip -6 -o a | grep fd) ]]
 	then
 		update-dns
-		/usr/bin/python3 /srv/app/main.py packageid update
+		/usr/bin/python3 /srv/app/main.py update
 	fi
 	/usr/bin/systemctl stop wpa_supplicant@wlan0
 }

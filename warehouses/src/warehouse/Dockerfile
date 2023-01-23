@@ -7,5 +7,8 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY ./app /app
 
+ENV WAREHOUSE_ID="DEMO"
+ENV API_SERVER="localhost"
+
 ENTRYPOINT ["python3"]
 CMD ["/app/main.py"]

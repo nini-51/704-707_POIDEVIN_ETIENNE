@@ -48,7 +48,7 @@ function main()
     WIFI_PWD=WifiPassphrase
 
     CONTAINER_ID=$(echo $ENV_FILE | cut -d/ -f2)
-    # WAREHOUSE_ID=$(echo ${CONTAINER_ID^^} | cut -d'-' -f2)
+    WAREHOUSE_ID=$(echo ${CONTAINER_ID^^} | cut -d'-' -f2)
 
     if [[ -d "/var/lib/lxc/$CONTAINER_ID" ]]; then
       echo "/var/lib/lxc/$CONTAINER_ID already exists!"
@@ -59,6 +59,9 @@ function main()
 
     # Create new warehouse based on warehouse-base
     lxc-copy -n base-warehouse -N $CONTAINER_ID
+
+    # Define warehouse id as environment variable in docker-compose file
+    sed -i "s/DEMO/$WAREHOUSE_ID/" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/docker-compose.yml
 
     # Configure radvd
     sed -i "s/interface wlan0/interface $NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/radvd.conf

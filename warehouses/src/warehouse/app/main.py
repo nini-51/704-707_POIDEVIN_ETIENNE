@@ -1,13 +1,26 @@
 import paho.mqtt.client as mqtt
-import requests
 from datetime import datetime
-import json
+import requests, json
 import threading
+import sys, os
 import time
 
 lock = threading.Lock()
 request = []
-warehouse_id = 1
+broker = "mosquitto"
+
+# Load env vars
+try:
+    WAREHOUSE_ID = os.environ['WAREHOUSE_ID']
+except KeyError:
+    print(f'[error]: `WAREHOUSE_ID` environment variable required')
+    sys.exit(1)
+
+try:
+    API_SERVER = os.environ['API_SERVER']
+except KeyError:
+    print(f'[error]: `API_SERVER` environment variable required')
+    sys.exit(1)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -29,7 +42,7 @@ def do_json(client, userdata, msg):
     date = today.isoformat()
 
     B = [str(x) for x in str(msg.payload).split(',') if x.strip()]
-    a=(json.dumps({'warehouse_id': warehouse_id, 'timestamp' : date, 'status' : B[2]}, sort_keys=True, indent=4))
+    a=(json.dumps({'warehouse_id': WAREHOUSE_ID, 'timestamp' : date, 'status' : B[2]}, sort_keys=True, indent=4))
     print(a)
 
     #block ressource
@@ -40,7 +53,7 @@ def do_json(client, userdata, msg):
         request.append("put")
     else:
         exit("Etat inconnu")
-    request.append("http://datacenter_flask_1:5000/objects/"+str(B[1]))
+    request.append(f"http://{API_SERVER}:5000/objects/"+str(B[1]))
     request.append(a)
     #debloque ressource
     lock.release()
@@ -48,7 +61,7 @@ def do_json(client, userdata, msg):
 #fonction multi-threadee
 def test_connexion():
     while(True):
-        r=requests.get('http://datacenter_flask_1:5000')
+        r=requests.get(f'http://{API_SERVER}:5000')
 
         if (r.status_code == requests.codes.ok):
             lock.acquire()
@@ -61,7 +74,7 @@ def test_connexion():
                     r= requests.put(request[1],data=request[2])
                 del request[0:3]
             lock.release()
-    sleep(1)
+        sleep(1)
 
 
 
@@ -81,7 +94,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("mosquitto", 1883, 60)
+client.connect(broker, 1883, 60)
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
