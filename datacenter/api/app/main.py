@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
+from werkzeug.exceptions import abort
 # from flask_cors import CORS
-import json
 
-from app.db import init_db, get_db
+from app.db import init_app, get_db
 
 api = Flask(__name__)
 api.config.from_mapping(
@@ -14,52 +14,99 @@ api.config.from_mapping(
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
 # init the database
-with api.app_context():
-    init_db()
+# with api.app_context():
+#     init_db()
+init_app(api)
 
-def new_package(package):
+def update_entry(pkg):
     db = get_db()
     error = None
 
     try:
         db.execute(
-            "INSERT INTO packages (package_id, status, warehouse_id, deliver_id, time, gps) VALUES (?,?,?,?,?,?)",
-            (package['package_id'], package['status'], package['warehouse_id'], package['deliver_id'], package['time'], package['gps']),
+            "UPDATE packages SET status = ?, warehouses = ?, deliver_id = ?, last_location = ? WHERE package_id = ?",
+            pkg['status'], pkg['warehouses'], pkg['deliver_id'], pkg['last_location'], pkg['package_id'],
+        )
+        db.commit()
+    except db.DatabaseError as e:
+        error = e
+
+    return error
+
+###
+@api.get('/packages')
+def packages():
+    db = get_db()
+    res = db.execute("SELECT * FROM packages").fetchall()
+    def dict_factory(pkg):
+        d = {}
+        for key in pkg.keys():
+            if key == 'warehouses':
+                d[key] = json.loads(pkg[key])
+            else:
+                d[key] = pkg[key]
+        return d
+    packages = list(map(lambda package : dict_factory(package), res))
+    return jsonify(packages)
+
+@api.post('/packages')
+def new_package():
+    """
+    Register a new package
+    """
+    try:
+        payload = request.get_json()
+    except json.decoder.JSONDecodeError as error:
+        abort(400, error)
+
+    if payload['status'] != 'in transit':
+        abort(400, "Invalid status for registration")
+
+    pkg = {
+        'package_id': payload['package_id'],
+        'status': payload['status'],
+        'warehouses': [ (payload['warehouse_id'], payload['timestamp']) ],
+        'deliver_id': None,
+        'last_location': payload['warehouse_id']
+    }
+
+    db = get_db()
+    try:
+        db.execute(
+            "INSERT INTO packages (package_id, status, warehouses, deliver_id, last_location) VALUES (?,?,?,?,?)",
+            (pkg['package_id'], pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location']),
         )
         db.commit()
     except db.IntegrityError:
-        print(f"Package {package['package_id']} is already registered.")
-    # return
-    # return inserted_package
+        abort(400, f"Package {pkg['package_id']} is already registered.")
 
-def update_package(package):
-    db = get_db()
-    error = None
+    return jsonify(pkg['package_id']), 201
 
-    try:
-        db.execute(
-            "UPDATE packages SET status = ?, warehouse_id = ?, deliver_id = ?, time = ?, gps = ? WHERE package_id =?",
-            status['status'], warehouse_id['warehouse_id'], deliver_id['deliver_id'], time['time'], gps['gps'],
-        )
-        db.commit()
-    except db.DatabaseError as error:
-        print(f"error: {e}")
-    # return
-    # return updated_user
 
-@api.route('/', methods=['GET'])
-def home():
-    return '''<h1>VLib - Online Library</h1><p>A flask api implementation for book information.   </p>'''
+@api.put('/packages/<string:package_id>')
+def update_package(package_id):
+    """
+    Update a package
+    """
+    return "soon"
 
-@api.route('/api/users/add',  methods = ['POST'])
-def api_add_user():
-    user = request.get_json()
-    return jsonify(insert_user(user))
 
-@api.route('/api/users/update',  methods = ['PUT'])
-def api_update_user():
-    user = request.get_json()
-    return jsonify(update_user(user))
+@api.delete('/packages/<string:package_id>')
+def delete_package(package_id):
+    """
+    Move a package into archives
+    """
+    return "soon"
+
+# @api.route('/api/users/add',  methods = ['POST'])
+# def api_add_user():
+#     user = request.get_json()
+#     return jsonify(insert_user(user))
+#
+# @api.route('/api/users/update',  methods = ['PUT'])
+# def api_update_user():
+#     user = request.get_json()
+#     return jsonify(update_user(user))
 
 # def create_app(test_config=None):
 #     # create and configure the app

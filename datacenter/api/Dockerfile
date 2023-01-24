@@ -4,6 +4,7 @@ LABEL maintainer="Louis Poidevin <louis.poidevin@etudiant.univ-reims.fr>"
 
 COPY requirements.txt /tmp/requirements.txt
 COPY gunicorn-conf.py /gunicorn-conf.py
+COPY entrypoint.sh /entrypoint.sh
 
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
@@ -12,5 +13,4 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0"
 EXPOSE 8000
 
-ENTRYPOINT ["gunicorn", "--config", "gunicorn-conf.py"]
-CMD ["app.main:api"]
+ENTRYPOINT ["/entrypoint.sh"]
