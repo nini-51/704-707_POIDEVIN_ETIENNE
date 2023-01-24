@@ -1,4 +1,4 @@
-# Env vars for package FR0001
+# Env vars for package FR0003
 
 NIC=wlan5
 SSID=PROD

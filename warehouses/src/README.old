@@ -1,3 +1,0 @@
-sudo docker-compose up --build
-
-sudo docker run -ti -v ./:/usr/src/app/ iot_objet

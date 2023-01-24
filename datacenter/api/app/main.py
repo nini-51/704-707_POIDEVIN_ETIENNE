@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 import json
 import sqlite3
 
-app = Flask(__name__)
+api = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
 
@@ -84,7 +84,7 @@ def api_update_user():
 if __name__ == "__main__":
     #app.debug = True
     #app.run(debug=True)
-    app.run() #run app
+    api.run() #run app
 
 # def create_app(test_config=None):
 #     # create and configure the app

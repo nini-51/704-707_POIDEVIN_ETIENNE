@@ -34,8 +34,8 @@ services:
       interval: 30s
       retries: 3
 
-  bridge-amqp:
-    build: bridge-amqp
+  amqp-bridge:
+    build: amqp-bridge
     restart: always
     environment:
       AMQP_SERVER: rabbit

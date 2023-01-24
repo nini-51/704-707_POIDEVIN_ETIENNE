@@ -76,7 +76,7 @@ function prepare-packages() {
 
 # Select random track
 function select-track() {
-  tracks=(`ls src/app/tracks/`)
+  tracks=(`ls app/tracks/`)
   index=$(($RANDOM % ${#tracks[@]}))
   echo ${tracks[$index]}
 }

@@ -22,6 +22,8 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
 Source : [https://docs.docker.com/engine/install/debian/]()
 
+- [https://sqlite-utils.datasette.io/en/stable/python-api.html]()
+
 ### TODO
 
 - [ ] ...
@@ -75,3 +77,4 @@ cd delivery
 - [ ] Auth backend (in rabbitmq)
 - [ ] TLS connection
 - [ ] Reliability (ack)
+- [ ] Improve README and docs

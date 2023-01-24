@@ -1,0 +1,58 @@
+---
+services:
+  rabbit:
+    image: rabbitmq:3
+    restart: always
+    ports:
+      - "5672:5672"
+    networks:
+      - amqp
+    volumes:
+      - ./rabbitmq/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      timeout: 10s
+      interval: 30s
+      retries: 3
+
+  beaver:
+    build: amqp-bridge
+    restart: always
+    networks:
+      - amqp
+      - internal
+    environment:
+      AMQP_SERVER: rabbit
+    volumes:
+      - ./bridge-amqp/app:/app:ro # dev purpose
+    entrypoint: ["tail", "-f"] # dev purpose
+    depends_on:
+      rabbit:
+        condition: service_healthy
+
+  octopus:
+    build: api
+    restart: always
+    ports:
+      - "8080:8000"
+    networks:
+      - internal
+    volumes:
+      - ./db:/var/lib/db:rw
+      - ./api/app:/app:ro # dev purpose
+    entrypoint: ["tail", "-f"] # dev purpose
+
+  fox:
+    build: web
+    restart: always
+    ports:
+      - "80:8000"
+      # - "443:443"
+    volumes:
+      - ./db:/var/lib/db:ro
+      - ./web/app:/app:ro # dev purpose
+    entrypoint: ["tail", "-f"] # dev purpose
+
+networks:
+  internal:
+  amqp:

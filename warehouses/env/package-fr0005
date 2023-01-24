@@ -1,0 +1,5 @@
+# Env vars for package FR0005
+
+NIC=wlan7
+SSID=PROD
+WIFI_PWD=TopSecretWifiPassphrase
