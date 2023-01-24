@@ -17,7 +17,7 @@ services:
       - warehouse
     environment:
       WAREHOUSE_ID: DEMO
-      API_SERVER: api.yousk.fr
+      API_SERVER: api.yousk.fr:8080
     depends_on:
       - mosquitto
 

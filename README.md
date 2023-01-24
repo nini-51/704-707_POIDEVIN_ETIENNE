@@ -37,6 +37,9 @@ apt install -y make
 # Ensure that scripts are executable
 chmod u+x warehouses/scripts/*
 
+# Change the API_SERVER variable to the FQDN of the API server (datacenter section)
+vim warehouses/src/warehouse/docker-compose.yml
+
 # Build warehouses infra
 cd warehouses
 make -j3 build-infra
@@ -65,6 +68,9 @@ make mrproper
 chmod u+x delivery/new-delivery.sh
 
 # Launch new deliveryman
+#  -i      Define the id of the deliveryman.
+#  -w      Define the warehouse from which the deliveryman leaves.
+#  -s      Define the AMQP server to use. (datacenter section)
 cd delivery
 ./new-delivery.sh -i john -w deliv1 -s amqp-broker.yousk.fr
 ```

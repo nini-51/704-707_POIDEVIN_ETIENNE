@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0"
 EXPOSE 8000
 
-ENTRYPOINT ["gunicorn", "--config", "/gunicorn-conf.py"]
+ENTRYPOINT ["gunicorn", "--config", "gunicorn-conf.py"]
 CMD ["app.main:api"]

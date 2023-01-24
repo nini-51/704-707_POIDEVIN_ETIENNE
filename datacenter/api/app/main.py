@@ -1,90 +1,65 @@
-# compose_flask/app.py
 from flask import Flask, request, jsonify
 # from flask_cors import CORS
 import json
-import sqlite3
+
+from app.db import init_db, get_db
 
 api = Flask(__name__)
+api.config.from_mapping(
+    # a default secret that should be overridden by instance config
+    SECRET_KEY = "dev",
+    # path of the database
+    DATABASE = "/var/lib/sqlite/delivery.sqlite"
+)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
+# init the database
+with api.app_context():
+    init_db()
 
-def connect_db_connection():
-    conn = sqlite3.connect('database.db')
-    return conn
+def new_package(package):
+    db = get_db()
+    error = None
 
-def create_db_table():
     try:
-        conn = connect_to_db()
-        conn.execute('''
-            DROP TABLE IF EXISTS objects;
+        db.execute(
+            "INSERT INTO packages (package_id, status, warehouse_id, deliver_id, time, gps) VALUES (?,?,?,?,?,?)",
+            (package['package_id'], package['status'], package['warehouse_id'], package['deliver_id'], package['time'], package['gps']),
+        )
+        db.commit()
+    except db.IntegrityError:
+        print(f"Package {package['package_id']} is already registered.")
+    # return
+    # return inserted_package
 
-            CREATE TABLE objects (
-              object_id INTEGER PRIMARY KEY NOT NULL,
-              status TEXT NOT NULL,
-              warehouse_id INTEGER NOT NULL,
-              deliver_id INTEGER NOT NULL,
-              time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              gps TEXT NOT NULL
-            );
-        ''')
-        conn.commit()
-        print("objects table created successfully")
-    except:
-        print("objects table creation failed - Maybe table")
-    finally:
-        conn.close()
+def update_package(package):
+    db = get_db()
+    error = None
 
-def insert_object(object):
-    inserted_object = {}
     try:
-        conn = connect_to_db()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO objects (object_id, status, warehouse_id, deliver_id, time, gps) VALUES (?,?,?,?,?,?)", (object_id['object_id'], status['status'], warehouse_id['warehouse_id'], deliver_id['deliver_id'], time['time'], gps['gps']))
-        conn.commit()
-        # insert_object = get_object_by_id(cur.lastrowid)
-    except:
-        conn().rollback()
-    finally:
-        conn.close()
-    return
-    # return inserted_object
-
-def update_object(object):
-    updated_user = {}
-    try:
-        conn = connect_to_db()
-        cur = conn.cursor()
-        cur.execute("UPDATE objects SET status = ?, warehouse_id = ?, deliver_id = ?, time = ?, gps = ? WHERE object_id =?", status['status'], warehouse_id['warehouse_id'], deliver_id['deliver_id'], time['time'], gps['gps'])
-        conn.commit()
-        #return the user
-        # updated_user = get_user_by_id(user["user_id"])
-
-    except:
-        conn.rollback()
-        updated_object = {}
-    finally:
-        conn.close()
-    return
+        db.execute(
+            "UPDATE packages SET status = ?, warehouse_id = ?, deliver_id = ?, time = ?, gps = ? WHERE package_id =?",
+            status['status'], warehouse_id['warehouse_id'], deliver_id['deliver_id'], time['time'], gps['gps'],
+        )
+        db.commit()
+    except db.DatabaseError as error:
+        print(f"error: {e}")
+    # return
     # return updated_user
 
-@app.route('/', methods=['GET'])
+@api.route('/', methods=['GET'])
 def home():
     return '''<h1>VLib - Online Library</h1><p>A flask api implementation for book information.   </p>'''
 
-@app.route('/api/users/add',  methods = ['POST'])
+@api.route('/api/users/add',  methods = ['POST'])
 def api_add_user():
     user = request.get_json()
     return jsonify(insert_user(user))
 
-@app.route('/api/users/update',  methods = ['PUT'])
+@api.route('/api/users/update',  methods = ['PUT'])
 def api_update_user():
     user = request.get_json()
     return jsonify(update_user(user))
-
-if __name__ == "__main__":
-    #app.debug = True
-    #app.run(debug=True)
-    api.run() #run app
 
 # def create_app(test_config=None):
 #     # create and configure the app
@@ -108,7 +83,7 @@ if __name__ == "__main__":
 #         pass
 #
 #     # a simple page that says hello
-#     @app.route('/index')
+#     @api.route('/index')
 #     def hello():
 #         return 'Hello, World!'
 #

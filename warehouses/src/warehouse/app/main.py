@@ -53,7 +53,7 @@ def do_json(client, userdata, msg):
         request.append("put")
     else:
         exit("Etat inconnu")
-    request.append(f"http://{API_SERVER}:5000/objects/"+str(B[1]))
+    request.append(f"http://{API_SERVER}/objects/"+str(B[1]))
     request.append(a)
     #debloque ressource
     lock.release()
@@ -61,7 +61,7 @@ def do_json(client, userdata, msg):
 #fonction multi-threadee
 def test_connexion():
     while(True):
-        r=requests.get(f'http://{API_SERVER}:5000')
+        r=requests.get(f'http://{API_SERVER}')
 
         if (r.status_code == requests.codes.ok):
             lock.acquire()

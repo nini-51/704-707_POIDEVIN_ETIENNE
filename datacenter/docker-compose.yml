@@ -38,9 +38,9 @@ services:
     networks:
       - internal
     volumes:
-      - ./db:/var/lib/db:rw
+      - database:/var/lib/sqlite:rw
       - ./api/app:/app:ro # dev purpose
-    entrypoint: ["tail", "-f"] # dev purpose
+    # entrypoint: ["tail", "-f"] # dev purpose
 
   fox:
     build: web
@@ -49,10 +49,15 @@ services:
       - "80:8000"
       # - "443:443"
     volumes:
-      - ./db:/var/lib/db:ro
+      - database:/var/lib/sqlite:ro
       - ./web/app:/app:ro # dev purpose
     entrypoint: ["tail", "-f"] # dev purpose
+    depends_on:
+      - octopus
 
 networks:
   internal:
   amqp:
+
+volumes:
+  database:
