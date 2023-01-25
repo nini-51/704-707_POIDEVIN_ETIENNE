@@ -1,15 +1,24 @@
 #!/usr/bin/env python
-import pika, gpxpy, json, sys, os
+import pika, gpxpy, json, ssl, sys, os
 from datetime import datetime
-from time import sleep
 
-def create_channel(server):
-    try:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=server))
-        return connection, connection.channel()
-    except:
-        sys.exit(1)
+def open_chan(host, credentials, context):
+
+    parameters = pika.ConnectionParameters(
+        host=host,
+        port=5671,
+        credentials=credentials,
+        ssl_options=pika.SSLOptions(context))
+
+    connection = pika.BlockingConnection(parameters)
+    return connection, connection.channel()
+
+def send_msg(channel, content):
+    channel.basic_publish(
+        exchange='',
+        routing_key='delivery',
+        body=json.dumps(content),
+        properties=pika.BasicProperties(content_type='application/json'))
 
 def fetch_gpx(track_file):
     try:
@@ -19,16 +28,16 @@ def fetch_gpx(track_file):
         print(f'[error]: {e}')
         sys.exit(1)
 
-def pickup(package, channel):
+def forge_pickup(package):
     content = {
         'type': 'pickup',
         'package_id': package,
         'delivery_id': DELIVERY_ID,
         'timestamp': datetime.now().isoformat()
     }
-    channel.basic_publish(exchange='', routing_key='delivery', body=json.dumps(content))
+    return content
 
-def update_gps(coords, packages, channel):
+def forge_update_gps(packages, coords):
     content = {
         'type': 'gps',
         'package_list': packages,
@@ -36,9 +45,9 @@ def update_gps(coords, packages, channel):
         'delivery_id': DELIVERY_ID,
         'timestamp': datetime.now().isoformat()
     }
-    channel.basic_publish(exchange='', routing_key='delivery', body=json.dumps(content))
+    return content
 
-def deliver(package, state, channel):
+def forge_deliver(package, state):
     content = {
         'type': 'deliver',
         'package_id': package,
@@ -46,7 +55,7 @@ def deliver(package, state, channel):
         'delivery_id': DELIVERY_ID,
         'timestamp': datetime.now().isoformat()
     }
-    channel.basic_publish(exchange='', routing_key='delivery', body=json.dumps(content))
+    return content
 
 def main():
     try:
@@ -55,25 +64,32 @@ def main():
         print('[error]: no package defined')
         sys.exit(1)
 
-    # init connection with amqp server
-    connection, channel = create_channel(AMQP_SERVER)
+    # Creating ssl context
+    context = ssl.create_default_context(cafile='/etc/ssl/certs/ca.crt')
+    context.verify_mode = ssl.CERT_REQUIRED
+
+    # Define credentials
+    credentials = pika.PlainCredentials(DELIVERY_ID, DELIVERY_PWD)
+
+    # Open the channel
+    connection, channel = open_chan(AMQP_SERVER, credentials, context)
 
     # register all pacakges to pickup
     for package in packages:
-        pickup(package, channel)
-        sleep(1)
+        send_msg(channel, forge_pickup(package))
+        connection.sleep(1)
 
     # send coords update from the track_file to amqp server
     for track in fetch_gpx(f"/app/tracks/{TRACK}").tracks:
         for segment in track.segments:
             for point in segment.points:
-                update_gps(point, packages, channel)
-                sleep(1)
+                send_msg(channel, forge_update_gps(packages, point))
+                connection.sleep(1)
 
     # deliver packages to destination
     for package in packages:
-        deliver(package, 'delivered', channel)
-        sleep(1)
+        send_msg(channel, forge_deliver(package, 'delivered'))
+        connection.sleep(1)
 
     # close connection with amqp server
     connection.close()
@@ -83,6 +99,12 @@ if __name__ == '__main__':
         DELIVERY_ID = os.environ['DELIVERY_ID']
     except KeyError:
         print('[error]: `DELIVERY_ID` environment variable required')
+        sys.exit(1)
+
+    try:
+        DELIVERY_PWD = os.environ['DELIVERY_PWD']
+    except KeyError:
+        print('[error]: `DELIVERY_PWD` environment variable required')
         sys.exit(1)
 
     try:

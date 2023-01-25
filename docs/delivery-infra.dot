@@ -22,8 +22,6 @@ beaver [label="AMQP bridge"]
 feather [label="SQLite" shape=folder]
 octopus [label="REST API"]
 fox [label="WebApp"]
-
-ldap [label="LDAP"]
 }
 
 subgraph cluster_warehouse {
@@ -83,7 +81,6 @@ bridge -> octopus
 octopus -> feather
 fox -> feather [dir=back]
 rabbit -> beaver [dir=both color="black:black"]
-rabbit -> ldap [dir=back]
 beaver -> octopus
 
 // Deliver process

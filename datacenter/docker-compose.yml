@@ -4,11 +4,12 @@ services:
     image: rabbitmq:3
     restart: always
     ports:
-      - "5672:5672"
+      - "5671:5671"
     networks:
       - amqp
     volumes:
-      - ./rabbitmq/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - /etc/ssl/rabbitmq:/etc/ssl/rabbitmq:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       timeout: 10s
@@ -24,7 +25,7 @@ services:
     environment:
       AMQP_SERVER: rabbit
     volumes:
-      - ./bridge-amqp/app:/app:ro # dev purpose
+      - ./amqp-bridge/app:/app:ro # dev purpose
     entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       rabbit:

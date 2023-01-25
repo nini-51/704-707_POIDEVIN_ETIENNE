@@ -1,28 +1,30 @@
 #!/usr/bin/env python
 import pika, json, sys, os
 
-def create_channel(server):
-    try:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=server))
-        return connection, connection.channel()
-    except:
-        sys.exit(1)
+def connect(host, credentials):
+    parameters = pika.ConnectionParameters(host = host, credentials = credentials)
+    connection = pika.BlockingConnection(parameters)
+    return connection, connection.channel()
 
 def callback(ch, method, properties, body):
-    content = json.loads(body.decode())
+    content = json.loads(body)
+
     match content['type']:
         case 'pickup':
-            print('ok: pickup')
+            print('pickup: ok')
+            print(content)
 
         case 'gps':
-            print('ok: gps')
+            print(f"gps: {content['coords']}")
 
         case 'deliver':
-            print('ok: deliver')
+            print('deliver: ok')
+            print(content)
 
         case _:
-            print(f"Unknown type : {content.type}")
+            print(f"Unknown type: {content['type']}")
+
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 def main():
     try:
@@ -31,13 +33,24 @@ def main():
         print('[error]: `AMQP_SERVER` environment variable required')
         sys.exit(1)
 
-    connection, channel = create_channel(AMQP_SERVER)
+    # Define credentials
+    credentials = pika.PlainCredentials('ladmin', '1f18b97c3a7d')
 
-    channel.queue_declare(queue='delivery')
-    channel.basic_consume(queue='delivery', on_message_callback=callback, auto_ack=True)
+    # Open the channel
+    connection, channel = connect(AMQP_SERVER, credentials)
+
+    # Declare the queue
+    channel.queue_declare(queue='delivery', durable=True, exclusive=False, auto_delete=False)
+
+    channel.basic_consume(queue='delivery', on_message_callback=callback)
 
     print(' [*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.stop_consuming()
+    finally:
+        connection.close()
 
 if __name__ == '__main__':
     main()

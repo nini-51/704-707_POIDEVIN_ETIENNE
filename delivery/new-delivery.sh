@@ -3,10 +3,12 @@
 function usage() {
   echo "
 Usage :
-  `basename $0` [-e <FILE>] [-h]
+  `basename $0` [-u] <username> [-p] <password> [-w] <warehouse> [-s] <amqp_server> [-h]
 
 Options :
-  -i      Define the id of the deliveryman.
+  -u      Define the id of the deliveryman.
+          Defaults to 'demo'
+  -p      Define the password of the deliveryman.
           Defaults to 'demo'
   -w      Define the warehouse from which the deliveryman leaves.
           Defaults to 'demo'
@@ -19,13 +21,17 @@ Options :
 function parse_options()
 {
   DELIVERY_ID=demo
+  DELIVERY_PWD=demo
   WAREHOUSE=demo
   AMQP_SERVER=amqp-broker.datacenter.local
 
-  while getopts ":hi:w:s:" option; do
+  while getopts ":hu:p:w:s:" option; do
         case $option in
             i)
                 DELIVERY_ID=$OPTARG
+                ;;
+            p)
+                DELIVERY_PWD=$OPTARG
                 ;;
             w)
                 WAREHOUSE=$OPTARG
@@ -83,7 +89,16 @@ function select-track() {
 
 # Create new deliveryman
 function launch-delivery() {
-  docker container run --rm --env AMQP_SERVER=$AMQP_SERVER --env DELIVERY_ID=${DELIVERY_ID^^} --env TRACK=$(select-track) deliveryman $(fetch-packages | prepare-packages)
+  CA_CERT='/etc/ssl/rabbitmq/ca.crt'
+
+  docker container run \
+    --rm \
+    --volume $CA_CERT:/etc/ssl/certs/ca.crt:ro \
+    --env AMQP_SERVER=$AMQP_SERVER \
+    --env DELIVERY_ID=$DELIVERY_ID \
+    --env DELIVERY_PWD=$DELIVERY_PWD \
+    --env TRACK=$(select-track) \
+    deliveryman $(fetch-packages | prepare-packages)
 }
 
 function main()
