@@ -29,16 +29,16 @@ def forge_content(payload):
 
     # Create content template
     content = {
-        'status' = 'in transit'
+        'status': 'in transit',
         'warehouse_id': WAREHOUSE_ID,
-        'timestamp' : datetime.now().isoformat(),
+        'timestamp': datetime.now().isoformat()
     }
 
     if data[1] == 'init':
         method = 'POST'
+        content['package_id'] = data[0]
     else:
         method = 'PUT'
-        content['package_id'] = data[0]
 
     return content, method, data[0]
 
@@ -81,7 +81,7 @@ def test_connexion():
                     r= requests.put(request[1],data=request[2])
                 del request[0:3]
             lock.release()
-        sleep(1)
+        time.sleep(1)
 
 
 
