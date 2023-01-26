@@ -5,7 +5,7 @@ from werkzeug.exceptions import abort
 from app.db import init_app, get_db
 
 api = Flask(__name__)
-api.config.from_mapping(
+web.config.from_mapping(
     # a default secret that should be overridden by instance config
     SECRET_KEY = "dev",
     # path of the database
@@ -14,22 +14,21 @@ api.config.from_mapping(
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
 # register the database commands
-init_app(api)
+init_app(web)
 
 
-@api.route('/')
+@web.route('/')
 def update_package(package_id):
     """
     Update a package
     """
     return "soon"
 
-@api.route('/suivre_mon_colis')
+@web.route('/suivre_mon_colis')
 def update_package(package_id):
     """
 
     """
-    if(arg)
     db = get_db()
 
     cur = con.cursor()
@@ -38,12 +37,12 @@ def update_package(package_id):
     packages = cur.fetchall();
     return "soon"
 
-@app.route('/<int:package_id>/')
+@web.route('/<int:package_id>/')
 def package(package_id):
     package = package.query.get_or_404(package_id)
     return render_template('package.html', package=package)
 
-@api.route('/liste')
+@web.route('/liste')
 def liste(package_id):
     """
     Update a package
@@ -58,7 +57,7 @@ def liste(package_id):
 
 
 
-@api.route('/suivre_mon_colis/<string:package_id>')
+@web.route('/suivre_mon_colis/<string:package_id>')
 def update_package(package_id):
     """
     Update a package

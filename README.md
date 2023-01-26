@@ -89,6 +89,7 @@ make mrproper
 - [x] Define fqdn of REST API in warehouse app (require to finish dc infra)
 - [x] QoS management (package - broker - bridge)
 - [x] Delete unnecessary files (.old files)
+- [ ] Manage error when API is unavailable (not crash)
 - [ ] Clean code and comment it
 - [ ] Improve README and docs
 

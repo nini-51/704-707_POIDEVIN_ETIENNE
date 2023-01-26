@@ -52,7 +52,7 @@ def update_formating(package_id, payload, current):
         case 'in delivery':
             content['warehouses'] = warehouses
             content['deliver_id'] = payload['deliver_id']
-            content['last_location'] = payload['coords']
+            content['last_location'] = json.dumps(payload['coords'])
 
         case _:
             content['warehouses'] = warehouses
