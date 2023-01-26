@@ -23,12 +23,15 @@
         <td>city</td>
         <td>Pincode</td>
      </thead>
+
+     {% for row in students %}
         <tr>
            <td>{{row["name"]}}</td>
            <td>{{row["addr"]}}</td>
            <td> {{ row["city"]}}</td>
            <td>{{row['pin']}}</td>
         </tr>
+     {% endfor %}
   </table>
 
 </div>

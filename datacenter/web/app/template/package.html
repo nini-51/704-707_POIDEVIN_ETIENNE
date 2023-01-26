@@ -16,20 +16,16 @@
 
 <div class="content">
 
-  <table border = 1>
-     <thead>
-        <td>Name</td>
-        <td>Address></td>
-        <td>city</td>
-        <td>Pincode</td>
-     </thead>
-        <tr>
-           <td>{{row["name"]}}</td>
-           <td>{{row["addr"]}}</td>
-           <td> {{ row["city"]}}</td>
-           <td>{{row['pin']}}</td>
-        </tr>
-  </table>
+  <span class="title">
+          <h1>{{ package.package_id }}</h1>
+      </span>
+      <div class="content">
+        <td>{{package['package_id']}}</td>
+        <td> {{ package['last_location']}}</td>
+        <td> {{ package['timestamp']}}</td>
+        <td>{{package['status']}}</td>
+      </div>
+
 
 </div>
 
