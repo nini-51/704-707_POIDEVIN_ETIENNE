@@ -75,7 +75,7 @@ def new_package():
     try:
         db.execute(
             "INSERT INTO packages (package_id, status, warehouses, deliver_id, last_location) VALUES (?,?,?,?,?)",
-            (pkg['package_id'].upper(), pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location'])
+            (pkg['package_id'], pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location'])
         )
         db.commit()
     except db.IntegrityError:

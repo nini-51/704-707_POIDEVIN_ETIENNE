@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import paho.mqtt.subscribe as subscribe
 from datetime import datetime
 import requests, json
@@ -47,14 +48,20 @@ def forge_content(payload):
 # 	| satus
 # 		|_> in transit
 def send(content, method, package_id):
-    # get current datetime and transforme to right iso 8601
-
-    body = json.dumps(content, sort_keys=True)
     #block ressource
     lock.acquire()
-    request.append(method)
-    request.append(f"http://{API_SERVER}/objects/{package_id}"))
-    request.append(a)
+
+    try:
+        if method == 'POST':
+            r = requests.post(f"http://{API_SERVER}/packages", json=content)
+        else:
+            r = requests.put(f"http://{API_SERVER}/packages/{package_id.lower()}", json=content)
+        r.raise_for_status()
+    # except requests.HTTPError as error:
+    #     print("The video library already exists.") if r.status_code == 409 else print(error)
+    except requests.RequestException as error:
+        print(error)
+
     #debloque ressource
     lock.release()
 
