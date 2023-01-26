@@ -49,7 +49,7 @@ def forge_content(payload):
 def send(content, method, package_id):
     # get current datetime and transforme to right iso 8601
 
-    body = json.dump(content, sort_keys=True)
+    body = json.dumps(content, sort_keys=True)
     #block ressource
     lock.acquire()
     request.append(method)

@@ -27,7 +27,7 @@ function parse_options()
 
   while getopts ":hu:p:w:s:" option; do
         case $option in
-            i)
+            u)
                 DELIVERY_ID=$OPTARG
                 ;;
             p)
@@ -58,7 +58,7 @@ function parse_options()
 # List packages in the seleted warehouse
 function fetch-packages() {
   list=()
-  for package in $(lxc-ls | grep -o 'package-.*'); do
+  for package in $(lxc-ls -1 | grep 'package-.*'); do
     if [[ $(grep -P "ssid=.${WAREHOUSE^^}." /var/lib/lxc/$package/rootfs/etc/wpa_supplicant/wpa_supplicant-*.conf) ]]; then
       list+=($package)
     fi
