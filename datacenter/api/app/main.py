@@ -13,9 +13,7 @@ api.config.from_mapping(
 )
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
-# init the database
-# with api.app_context():
-#     init_db()
+# register the database commands
 init_app(api)
 
 def update_entry(pkg):

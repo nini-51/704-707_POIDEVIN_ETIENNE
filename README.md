@@ -49,11 +49,14 @@ openssl x509 -req -days 3650 -set_serial 01 \
 
 Source : [https://docs.docker.com/engine/install/debian/]()
 
-- [https://sqlite-utils.datasette.io/en/stable/python-api.html]()
-
 ### TODO
 
-- [ ] ...
+- [ ] Create web view
+- [ ] Create PUT section of API
+- [ ] Create DELETE section of API
+- [ ] Manage http return code in amqp-bridge
+- [ ] Clean code and comment it
+- [ ] Improve README and docs
 
 ## Warehouses section
 
@@ -82,7 +85,7 @@ make mrproper
 
 - [x] Clean msg send by pacakges to mqtt broker
 - [x] Define warehouse id in its app via docker env var in docker-compose.yml
-- [ ] Define fqdn of REST API in warehouse app (require to finish dc infra)
+- [x] Define fqdn of REST API in warehouse app (require to finish dc infra)
 - [x] QoS management (package - broker - bridge)
 - [x] Delete unnecessary files (.old files)
 - [ ] Clean code and comment it

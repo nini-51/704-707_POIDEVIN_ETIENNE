@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pika, json, sys, os
+import pika, requests, json, sys, os
 
 def connect(host, credentials):
     parameters = pika.ConnectionParameters(host = host, credentials = credentials)
@@ -11,20 +11,54 @@ def callback(ch, method, properties, body):
 
     match content['type']:
         case 'pickup':
-            print('pickup: ok')
-            print(content)
+            payload = {
+                'status': 'pick up',
+                'delivery_id': content['delivery_id'],
+                'timestamp': content['timestamp']
+            }
+            send(content['package_id'], payload)
 
         case 'gps':
-            print(f"gps: {content['coords']}")
+            for package in content['package_list']:
+                payload = {
+                    'status': 'in delivery',
+                    'coords': content['coords'],
+                    'delivery_id': content['delivery_id'],
+                    'timestamp': content['timestamp']
+                }
+                send(package, payload)
 
         case 'deliver':
-            print('deliver: ok')
-            print(content)
+            payload = {
+                'status': content['status'],
+                'delivery_id': content['delivery_id'],
+                'timestamp': content['timestamp']
+            }
+            send(content['package_id'], payload)
+            delete(content['package_id'])
 
         case _:
             print(f"Unknown type: {content['type']}")
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
+
+def send(package_id, payload):
+    try:
+        r = requests.put(f"http://octopus:8000/packages/{package_id.lower()}", json=payload)
+        r.raise_for_status()
+    # except requests.HTTPError as error:
+    #     print("The video library already exists.") if r.status_code == 409 else print(error)
+    except requests.RequestException as error:
+        print(error)
+
+def delete(package_id):
+    try:
+        r = requests.delete(f"http://octopus:8000/packages/{package_id.lower()}")
+        r.raise_for_status()
+    # except requests.HTTPError as error:
+    #     print("The video library does not exist.") if r.status_code == 404 else print(error)
+    except requests.RequestException as e:
+        print(error)
 
 def main():
     try:
