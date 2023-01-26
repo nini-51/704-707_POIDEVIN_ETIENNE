@@ -17,7 +17,7 @@ def send_msg(channel, content):
     channel.basic_publish(
         exchange='',
         routing_key='delivery',
-        body=json.dumps(content),
+        body=json.dumps(content, sort_keys=True),
         properties=pika.BasicProperties(content_type='application/json'))
 
 def fetch_gpx(track_file):
@@ -47,11 +47,11 @@ def forge_update_gps(packages, coords):
     }
     return content
 
-def forge_deliver(package, state):
+def forge_deliver(package, status):
     content = {
         'type': 'deliver',
         'package_id': package,
-        'state': state,
+        'status': status,
         'delivery_id': DELIVERY_ID,
         'timestamp': datetime.now().isoformat()
     }

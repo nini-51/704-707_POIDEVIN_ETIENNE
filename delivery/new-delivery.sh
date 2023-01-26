@@ -6,7 +6,7 @@ Usage :
   `basename $0` [-u] <username> [-p] <password> [-w] <warehouse> [-s] <amqp_server> [-h]
 
 Options :
-  -u      Define the id of the deliveryman.
+  -u      Define the username of the deliveryman.
           Defaults to 'demo'
   -p      Define the password of the deliveryman.
           Defaults to 'demo'

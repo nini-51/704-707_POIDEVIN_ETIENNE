@@ -80,11 +80,11 @@ make mrproper
 
 ### TODO
 
-- [ ] Clean msg send by pacakges to mqtt broker
-- [ ] Define warehouse id in its app via docker env var in docker-compose.yml
+- [x] Clean msg send by pacakges to mqtt broker
+- [x] Define warehouse id in its app via docker env var in docker-compose.yml
 - [ ] Define fqdn of REST API in warehouse app (require to finish dc infra)
-- [ ] QoS management (package - broker - bridge)
-- [ ] Delete unnecessary files (.old files)
+- [x] QoS management (package - broker - bridge)
+- [x] Delete unnecessary files (.old files)
 - [ ] Clean code and comment it
 - [ ] Improve README and docs
 
@@ -99,12 +99,12 @@ docker exec -ti datacenter-rabbit-1 rabbitmqctl set_permissions -p '/' 'john' ''
 chmod u+x delivery/new-delivery.sh
 
 # Launch new deliveryman
-#  -i      Define the id of the deliveryman.
+#  -u      Define the username of the deliveryman.
 #  -p      Define the password of the deliveryman.
 #  -w      Define the warehouse from which the deliveryman leaves.
 #  -s      Define the AMQP server to use. (datacenter section)
 cd delivery
-./new-delivery.sh -i john -p secret -w deliv1 -s amqp-broker.yousk.fr
+./new-delivery.sh -u john -p secret -w deliv1 -s amqp-broker.yousk.fr
 ```
 
 - [https://www.rabbitmq.com/getstarted.html]()
@@ -115,4 +115,5 @@ cd delivery
 - [x] Auth backend (in rabbitmq)
 - [x] TLS connection
 - [ ] Reliability (ack) > verif on connection lost
+- [ ] Add new tracks
 - [ ] Improve README and docs

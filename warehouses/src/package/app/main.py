@@ -1,4 +1,4 @@
-import paho.mqtt.client as paho
+import paho.mqtt.publish as publish
 import sys, os
 
 broker = "mqtt.warehouse.local"
@@ -15,19 +15,14 @@ except IndexError:
     print('[error]: `state` argument required')
     sys.exit(1)
 
-#create function for callback
-def on_publish(client,userdata,result):
-    print("data published")
-    pass
+# Define QOS level
+QOS = 2 if state == 'init' else 1
 
-#create client object
-client1 = paho.Client(PACKAGE_ID)
-#assign function to callback
-client1.on_publish = on_publish
-#establish connection
 try:
-    client1.connect(broker, 1883, 60)
+    # Publish single message
+    publish.single("package/beacon", payload=f"{PACKAGE_ID},{state}", qos=QOS,
+        hostname=broker, port=1883, client_id=PACKAGE_ID, keepalive=60)
+    print("data published")
 except:
+    print("transmission failed")
     sys.exit(1)
-
-ret = client1.publish(f"test,{PACKAGE_ID},{state}")

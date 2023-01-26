@@ -1,4 +1,4 @@
-import paho.mqtt.client as mqtt
+import paho.mqtt.subscribe as subscribe
 from datetime import datetime
 import requests, json
 import threading
@@ -22,38 +22,38 @@ except KeyError:
     print(f'[error]: `API_SERVER` environment variable required')
     sys.exit(1)
 
-# The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
 
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    client.subscribe("test")
+def forge_content(payload):
+    data = list(payload.decode().split(','))
 
+    # Create content template
+    content = {
+        'status' = 'in transit'
+        'warehouse_id': WAREHOUSE_ID,
+        'timestamp' : datetime.now().isoformat(),
+    }
+
+    if data[1] == 'init':
+        method = 'POST'
+    else:
+        method = 'PUT'
+        content['package_id'] = data[0]
+
+    return content, method, data[0]
 
 # | Package-id
 # 	|  warehouse_id
 # 	| timestanp (iso 8601)
 # 	| satus
 # 		|_> in transit
-def do_json(client, userdata, msg):
+def send(content, method, package_id):
     # get current datetime and transforme to right iso 8601
-    today = datetime.now()
-    date = today.isoformat()
 
-    B = [str(x) for x in str(msg.payload).split(',') if x.strip()]
-    a=(json.dumps({'warehouse_id': WAREHOUSE_ID, 'timestamp' : date, 'status' : B[2]}, sort_keys=True, indent=4))
-    print(a)
-
+    body = json.dump(content, sort_keys=True)
     #block ressource
     lock.acquire()
-    if B[2]=="init":
-        request.append("post")
-    elif(B[2]=="update"):
-        request.append("put")
-    else:
-        exit("Etat inconnu")
-    request.append(f"http://{API_SERVER}/objects/"+str(B[1]))
+    request.append(method)
+    request.append(f"http://{API_SERVER}/objects/{package_id}"))
     request.append(a)
     #debloque ressource
     lock.release()
@@ -80,24 +80,19 @@ def test_connexion():
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
 
-    message = do_json(client, userdata, msg)
+    content, method, package_id = forge_content(msg.payload)
+
+    send(content, method, package_id)
 
     #thread pour double connexion
     x=threading.Thread(target=test_connexion)
     # threads.append(x)
     x.start()
 
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect(broker, 1883, 60)
-
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-client.loop_forever()
+try:
+    subscribe.callback(on_message, "package/beacon", qos=2,
+        hostname=broker, port=1883, client_id=WAREHOUSE_ID, keepalive=60)
+except:
+    print("connection failed")
+    sys.exit(1)
