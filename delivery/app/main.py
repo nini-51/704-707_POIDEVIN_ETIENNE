@@ -32,7 +32,7 @@ def forge_pickup(package):
     content = {
         'type': 'pickup',
         'package_id': package,
-        'delivery_id': DELIVERY_ID,
+        'deliver_id': DELIVER_ID,
         'timestamp': datetime.now().isoformat()
     }
     return content
@@ -42,7 +42,7 @@ def forge_update_gps(packages, coords):
         'type': 'gps',
         'package_list': packages,
         'coords': (coords.latitude, coords.longitude),
-        'delivery_id': DELIVERY_ID,
+        'deliver_id': DELIVER_ID,
         'timestamp': datetime.now().isoformat()
     }
     return content
@@ -52,7 +52,7 @@ def forge_deliver(package, status):
         'type': 'deliver',
         'package_id': package,
         'status': status,
-        'delivery_id': DELIVERY_ID,
+        'deliver_id': DELIVER_ID,
         'timestamp': datetime.now().isoformat()
     }
     return content
@@ -69,7 +69,7 @@ def main():
     context.verify_mode = ssl.CERT_REQUIRED
 
     # Define credentials
-    credentials = pika.PlainCredentials(DELIVERY_ID, DELIVERY_PWD)
+    credentials = pika.PlainCredentials(DELIVER_ID, DELIVER_PWD)
 
     # Open the channel
     connection, channel = open_chan(AMQP_SERVER, credentials, context)
@@ -96,15 +96,15 @@ def main():
 
 if __name__ == '__main__':
     try:
-        DELIVERY_ID = os.environ['DELIVERY_ID']
+        DELIVER_ID = os.environ['DELIVER_ID']
     except KeyError:
-        print('[error]: `DELIVERY_ID` environment variable required')
+        print('[error]: `DELIVER_ID` environment variable required')
         sys.exit(1)
 
     try:
-        DELIVERY_PWD = os.environ['DELIVERY_PWD']
+        DELIVER_PWD = os.environ['DELIVER_PWD']
     except KeyError:
-        print('[error]: `DELIVERY_PWD` environment variable required')
+        print('[error]: `DELIVER_PWD` environment variable required')
         sys.exit(1)
 
     try:

@@ -13,7 +13,7 @@ def callback(ch, method, properties, body):
         case 'pickup':
             payload = {
                 'status': 'pick up',
-                'delivery_id': content['delivery_id'],
+                'deliver_id': content['deliver_id'],
                 'timestamp': content['timestamp']
             }
             send(content['package_id'], payload)
@@ -23,7 +23,7 @@ def callback(ch, method, properties, body):
                 payload = {
                     'status': 'in delivery',
                     'coords': content['coords'],
-                    'delivery_id': content['delivery_id'],
+                    'deliver_id': content['deliver_id'],
                     'timestamp': content['timestamp']
                 }
                 send(package, payload)
@@ -31,7 +31,7 @@ def callback(ch, method, properties, body):
         case 'deliver':
             payload = {
                 'status': content['status'],
-                'delivery_id': content['delivery_id'],
+                'deliver_id': content['deliver_id'],
                 'timestamp': content['timestamp']
             }
             send(content['package_id'], payload)
@@ -40,7 +40,7 @@ def callback(ch, method, properties, body):
         case _:
             print(f"Unknown type: {content['type']}")
 
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    ch.basic_ack(deliver_tag=method.deliver_tag)
 
 def send(package_id, payload):
     try:

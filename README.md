@@ -52,11 +52,12 @@ Source : [https://docs.docker.com/engine/install/debian/]()
 ### TODO
 
 - [ ] Create web view
-- [ ] Create PUT section of API
+- [x] Create PUT section of API
 - [x] Create DELETE section of API
 - [ ] Manage http return code in amqp-bridge
 - [ ] Clean code and comment it
 - [ ] Improve README and docs
+- [ ] Manage package lost
 
 ## Warehouses section
 

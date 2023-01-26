@@ -20,18 +20,18 @@ Options :
 
 function parse_options()
 {
-  DELIVERY_ID=demo
-  DELIVERY_PWD=demo
+  DELIVER_ID=demo
+  DELIVER_PWD=demo
   WAREHOUSE=demo
   AMQP_SERVER=amqp-broker.datacenter.local
 
   while getopts ":hu:p:w:s:" option; do
         case $option in
             u)
-                DELIVERY_ID=$OPTARG
+                DELIVER_ID=$OPTARG
                 ;;
             p)
-                DELIVERY_PWD=$OPTARG
+                DELIVER_PWD=$OPTARG
                 ;;
             w)
                 WAREHOUSE=$OPTARG
@@ -95,8 +95,8 @@ function launch-delivery() {
     --rm \
     --volume $CA_CERT:/etc/ssl/certs/ca.crt:ro \
     --env AMQP_SERVER=$AMQP_SERVER \
-    --env DELIVERY_ID=$DELIVERY_ID \
-    --env DELIVERY_PWD=$DELIVERY_PWD \
+    --env DELIVER_ID=$DELIVER_ID \
+    --env DELIVER_PWD=$DELIVER_PWD \
     --env TRACK=$(select-track) \
     deliveryman $(fetch-packages | prepare-packages)
 }

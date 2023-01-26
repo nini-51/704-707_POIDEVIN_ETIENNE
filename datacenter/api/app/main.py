@@ -16,22 +16,6 @@ api.config.from_mapping(
 # register the database commands
 init_app(api)
 
-def update_entry(pkg):
-    db = get_db()
-    error = None
-
-    try:
-        db.execute(
-            "UPDATE packages SET status = ?, warehouses = ?, deliver_id = ?, last_location = ? WHERE package_id = ?",
-            pkg['status'], pkg['warehouses'], pkg['deliver_id'], pkg['last_location'], pkg['package_id']
-        )
-        db.commit()
-    except db.DatabaseError as e:
-        error = e
-
-    return error
-
-###
 def dict_factory(pkg):
     d = {}
     for key in pkg.keys():
@@ -41,10 +25,56 @@ def dict_factory(pkg):
             d[key] = pkg[key]
     return d
 
+def update_formating(package_id, payload, current):
+
+    # Create content common
+    content = {
+        'package_id': package_id,
+        'status': payload['status'],
+    }
+
+    warehouses = json.loads(current['warehouses'])
+
+    match payload['status']:
+        case 'in transit':
+            if payload['warehouse_id'] != current['last_location']:
+                content['warehouses'] = [*warehouses, [payload['warehouse_id'], payload['timestamp']]]
+            else:
+                content['warehouses'] = warehouses
+            content['deliver_id'] = None
+            content['last_location'] = payload['warehouse_id']
+
+        case 'pick up':
+            content['warehouses'] = warehouses
+            content['deliver_id'] = payload['deliver_id']
+            content['last_location'] = current['last_location']
+
+        case 'in delivery':
+            content['warehouses'] = warehouses
+            content['deliver_id'] = payload['deliver_id']
+            content['last_location'] = payload['coords']
+
+        case _:
+            content['warehouses'] = warehouses
+            content['deliver_id'] = payload['deliver_id']
+            content['last_location'] = current['last_location']
+
+    return content
+
+
 @api.get('/packages')
 def packages():
     db = get_db()
     res = db.execute("SELECT * FROM packages").fetchall()
+
+    packages = list(map(lambda package : dict_factory(package), res))
+    return jsonify(packages)
+
+
+@api.get('/archives')
+def archives():
+    db = get_db()
+    res = db.execute("SELECT * FROM archives").fetchall()
 
     packages = list(map(lambda package : dict_factory(package), res))
     return jsonify(packages)
@@ -80,6 +110,8 @@ def new_package():
         db.commit()
     except db.IntegrityError:
         abort(400, f"Package {pkg['package_id']} is already registered.")
+    except db.DatabaseError as error:
+        abort(500, error)
     return jsonify(pkg['package_id']), 201
 
 
@@ -88,7 +120,28 @@ def update_package(package_id):
     """
     Update a package
     """
-    return "soon"
+    db = get_db()
+    try:
+        payload = request.get_json()
+    except json.decoder.JSONDecodeError as error:
+        abort(400, error)
+
+    current = db.execute(
+        "SELECT * FROM packages WHERE package_id = ?",
+        (package_id.upper(),)
+    ).fetchone()
+    pkg = update_formating(package_id, payload, current)
+
+    try:
+        db.execute(
+            "UPDATE packages SET status = ?, warehouses = ?, deliver_id = ?, last_location = ? WHERE package_id = ?",
+            (pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location'], pkg['package_id'].upper())
+        )
+        db.commit()
+    except db.DatabaseError as error:
+        abort(400, error)
+
+    return jsonify(package_id.upper()), 200
 
 
 @api.delete('/packages/<string:package_id>')
@@ -101,14 +154,15 @@ def delete_package(package_id):
         db.execute("""
             INSERT INTO archives (package_id, status, warehouses, deliver_id, last_location)
             SELECT package_id, status, warehouses, deliver_id, last_location
-            FROM packages;
+            FROM packages
             WHERE package_id = ?
-            """, package_id.upper()
-        )
-        db.execute(
-            "DELETE FROM packages WHERE package_id = ?", package_id.upper()
+            """, (package_id.upper(),)
         )
         db.commit()
-    except Error as error:
+        db.execute(
+            "DELETE FROM packages WHERE package_id = ?", (package_id.upper(),)
+        )
+        db.commit()
+    except db.DatabaseError as error:
         abort(500, error)
     return jsonify(package_id.upper()), 204
