@@ -82,6 +82,10 @@ EOF
 mkdir /var/lib/lxc/$name/rootfs/srv/scripts
 cat << 'EOF' > /var/lib/lxc/$name/rootfs/srv/scripts/wake-up.sh
 #!/usr/bin/bash
+
+# Fix because lxc.environment is not sufficient
+export PACKAGE_ID="DEMO"
+
 function main()
 {
 	/usr/bin/systemctl restart wpa_supplicant@wlan0

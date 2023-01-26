@@ -61,6 +61,7 @@ function main()
 
     # Define package id as environment variable
     echo "lxc.environment = PACKAGE_ID=$PACKAGE_ID" >> /var/lib/lxc/$CONTAINER_ID/config
+    sed -i "s/DEMO/$PACKAGE_ID/" /var/lib/lxc/$CONTAINER_ID/rootfs/srv/scripts/wake-up.sh
 
     # Configure wireless nic
     sed -i "s/Name=.*/Name=$NIC/" /var/lib/lxc/$CONTAINER_ID/rootfs/etc/systemd/network/wlan0.network
