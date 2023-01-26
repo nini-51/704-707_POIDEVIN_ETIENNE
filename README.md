@@ -53,7 +53,7 @@ Source : [https://docs.docker.com/engine/install/debian/]()
 
 - [ ] Create web view
 - [ ] Create PUT section of API
-- [ ] Create DELETE section of API
+- [x] Create DELETE section of API
 - [ ] Manage http return code in amqp-bridge
 - [ ] Clean code and comment it
 - [ ] Improve README and docs
