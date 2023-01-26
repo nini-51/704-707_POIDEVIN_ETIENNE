@@ -81,7 +81,7 @@ def test_connexion():
                     r= requests.put(request[1],data=request[2])
                 del request[0:3]
             lock.release()
-        sleep(1)
+        time.sleep(1)
 
 
 
@@ -92,14 +92,14 @@ def on_message(client, userdata, msg):
 
     send(content, method, package_id)
 
-    #thread pour double connexion
-    x=threading.Thread(target=test_connexion)
-    # threads.append(x)
-    x.start()
-
 try:
     subscribe.callback(on_message, "package/beacon", qos=2,
         hostname=broker, port=1883, client_id=WAREHOUSE_ID, keepalive=60)
 except:
     print("connection failed")
     sys.exit(1)
+
+#thread pour double connexion
+x=threading.Thread(target=test_connexion)
+# threads.append(x)
+x.start()
