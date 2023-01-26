@@ -26,7 +26,7 @@ services:
       AMQP_SERVER: rabbit
     volumes:
       - ./amqp-bridge/app:/app:ro # dev purpose
-    entrypoint: ["tail", "-f"] # dev purpose
+    # entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       rabbit:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
     volumes:
       - database:/var/lib/sqlite:rw
       - ./api/app:/app:ro # dev purpose
-    entrypoint: ["tail", "-f"] # dev purpose
+    # entrypoint: ["tail", "-f"] # dev purpose
 
   fox:
     build: web

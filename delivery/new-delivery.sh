@@ -72,8 +72,8 @@ function prepare-packages() {
   while read line; do
     for package in $line; do
       package_id=$(echo $package | cut -d'-' -f2)
-      # lxc-stop -n $package
-      # lxc-destroy -n $package
+      lxc-stop -n $package
+      lxc-destroy -n $package
       prepared+=(${package_id^^})
     done
   done < /dev/stdin

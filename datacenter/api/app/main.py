@@ -158,7 +158,6 @@ def delete_package(package_id):
             WHERE package_id = ?
             """, (package_id.upper(),)
         )
-        db.commit()
         db.execute(
             "DELETE FROM packages WHERE package_id = ?", (package_id.upper(),)
         )
