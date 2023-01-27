@@ -9,8 +9,7 @@
 <body>
 
 <div class="topnav">
-  <a href="/">Home</a>
-  <a href="/suivre_mon_colis">Where is my package</a>
+  <a href="/find_my_package">Find my package</a>
   <a href="/liste">All package</a>
 </div>
 
@@ -18,17 +17,20 @@
 
   <table border = 1>
      <thead>
-        <td>Name</td>
-        <td>Address></td>
-        <td>city</td>
-        <td>Pincode</td>
+        <td>Package number</td>
+        <td>Last location></td>
+        <td>timestamp</td>
+        <td>Status</td>
      </thead>
+
+     {% for row in packages %}
         <tr>
-           <td>{{row["name"]}}</td>
-           <td>{{row["addr"]}}</td>
-           <td> {{ row["city"]}}</td>
-           <td>{{row['pin']}}</td>
+           <td>{{row['package_id']}}</td>
+           <td> {{ row['last_location']}}</td>
+           <td> {{ row['timestamp']}}</td>
+           <td>{{row['status']}}</td>
         </tr>
+     {% endfor %}
   </table>
 
 </div>
