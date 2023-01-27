@@ -92,7 +92,7 @@ function main()
     systemctl restart wpa_supplicant@$NIC.service
 EOF
 
-    sleep 10
+    sleep 15
 
     DNS=$(lxc-attach -n $CONTAINER_ID -- /usr/bin/resolvectl dns | grep -o 'fd.*')
     mv /var/lib/lxc/$CONTAINER_ID/rootfs/etc/resolv.{conf,conf.old}

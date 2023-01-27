@@ -91,6 +91,8 @@ function main()
     PID=$(lxc-info -n $CONTAINER_ID | grep PID | grep -Po '[0-9]+$')
     iw phy $PHYS set netns $PID
 
+    sleep 15
+
     # launch docker app
     lxc-attach -n $CONTAINER_ID -- /usr/bin/bash <<- EOF
     cd /srv

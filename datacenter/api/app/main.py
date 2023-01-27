@@ -130,6 +130,10 @@ def update_package(package_id):
         "SELECT * FROM packages WHERE package_id = ?",
         (package_id.upper(),)
     ).fetchone()
+
+    if not current:
+        abort(400, f"[error]: {package_id.upper()} is not registered!")
+
     pkg = update_formating(package_id, payload, current)
 
     try:
