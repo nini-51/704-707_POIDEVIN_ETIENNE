@@ -52,7 +52,7 @@ def update_formating(package_id, payload, current):
         case 'in delivery':
             content['warehouses'] = warehouses
             content['deliver_id'] = payload['deliver_id']
-            content['last_location'] = payload['coords']
+            content['last_location'] = json.dumps(payload['coords'])
 
         case _:
             content['warehouses'] = warehouses
@@ -130,6 +130,10 @@ def update_package(package_id):
         "SELECT * FROM packages WHERE package_id = ?",
         (package_id.upper(),)
     ).fetchone()
+
+    if not current:
+        abort(400, f"[error]: {package_id.upper()} is not registered!")
+
     pkg = update_formating(package_id, payload, current)
 
     try:

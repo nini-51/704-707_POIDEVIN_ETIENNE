@@ -40,8 +40,6 @@ def callback(ch, method, properties, body):
         case _:
             print(f"Unknown type: {content['type']}")
 
-    ch.basic_ack(deliver_tag=method.deliver_tag)
-
 def send(package_id, payload):
     try:
         r = requests.put(f"http://octopus:8000/packages/{package_id.lower()}", json=payload)
@@ -76,7 +74,7 @@ def main():
     # Declare the queue
     channel.queue_declare(queue='delivery', durable=True, exclusive=False, auto_delete=False)
 
-    channel.basic_consume(queue='delivery', on_message_callback=callback)
+    channel.basic_consume(queue='delivery', on_message_callback=callback, auto_ack=True)
 
     print(' [*] Waiting for messages. To exit press CTRL+C')
     try:

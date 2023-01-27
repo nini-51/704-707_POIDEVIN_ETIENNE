@@ -5,6 +5,7 @@ codename='bullseye'
 arch='amd64'
 
 src_path='src/package'
+dns_resolver='195.221.20.53'
 
 if [[ -d "/var/lib/lxc/$name" ]]; then
 	echo "/var/lib/lxc/$name already exists!"
@@ -15,7 +16,7 @@ fi
 lxc-create -t download -n $name -- -d debian -r $codename -a $arch
 
 # DNS config
-sed -i 's/#DNS=.*/DNS=9.9.9.9/' /var/lib/lxc/$name/rootfs/etc/systemd/resolved.conf
+sed -i "s/#DNS=.*/DNS=$dns_resolver/" /var/lib/lxc/$name/rootfs/etc/systemd/resolved.conf
 
 # Start container
 lxc-start -n $name
@@ -82,6 +83,10 @@ EOF
 mkdir /var/lib/lxc/$name/rootfs/srv/scripts
 cat << 'EOF' > /var/lib/lxc/$name/rootfs/srv/scripts/wake-up.sh
 #!/usr/bin/bash
+
+# Fix because lxc.environment is not sufficient
+export PACKAGE_ID="DEMO"
+
 function main()
 {
 	/usr/bin/systemctl restart wpa_supplicant@wlan0

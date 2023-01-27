@@ -5,6 +5,7 @@ codename='bullseye'
 arch='amd64'
 
 src_path='src/warehouse'
+dns_resolver='195.221.20.53'
 
 if [[ -d "/var/lib/lxc/$name" ]]; then
 	echo "/var/lib/lxc/$name already exists!"
@@ -114,7 +115,7 @@ options {
 
 	forward only;
 	forwarders {
-	 	9.9.9.9;
+	 	$dns_resolver;
 	};
 
 	//========================================================================
@@ -164,6 +165,7 @@ EOF
 rm /var/lib/lxc/$name/rootfs/etc/resolv.conf
 cat << EOF > /var/lib/lxc/$name/rootfs/etc/resolv.conf
 nameserver ::1
+nameserver $dns_resolver
 EOF
 
 # Setup app in /srv folder
