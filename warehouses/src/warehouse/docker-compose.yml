@@ -18,7 +18,6 @@ services:
     environment:
       WAREHOUSE_ID: DEMO
       API_SERVER: api.yousk.fr:8080
-    # entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       - mosquitto
 

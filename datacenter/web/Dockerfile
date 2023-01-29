@@ -7,7 +7,7 @@ COPY gunicorn-conf.py /gunicorn-conf.py
 
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# COPY app /app
+COPY app /app
 
 ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0"
 EXPOSE 8000

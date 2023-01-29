@@ -1,8 +1,16 @@
 # Projet RT0704 / RT0707 : Suivi de livraison
 
-Soon
+Ce projet vise à fournir un suivi multi-niveau pour les livraisons d'un vendeur en ligne.
+
+Le premier niveau sera suivi grâce à un objet connecté embarqué dans chaque colis, tandis que le second niveau utilisera une application mobile pour suivre la livraison par le livreur.
+
+Les données seront collectées via des signaux de présence, des mises à jour régulières de la position et seront archivées à la livraison.
+
+Les clients pourront suivre leur colis à l'aide d'une application WEB.
 
 ## Datacenter section
+
+Soon
 
 ```bash
 # Install docker
@@ -52,23 +60,18 @@ docker compose up -d
 
 ### TODO
 
-- [x] Create web view
-- [x] Create PUT section of API
-- [x] Create DELETE section of API
-- [ ] Manage error on beaver when rabbitmq is unavailable (not crash)
-- [ ] Manage http return code in amqp-bridge
+- [ ] Error handling on beaver when rabbitmq is unavailable (no crash)
+- [ ] Managing http return codes in amqp-bridge
+- [ ] Added management of lost packages
 - [ ] Clean code and comment it
-- [ ] Improve README and docs
-- [ ] Manage package lost
 
 ## Warehouses section
+
+Soon
 
 ```bash
 # Install make tool
 apt install -y make
-
-# Ensure that scripts are executable
-chmod u+x warehouses/scripts/*
 
 # Change the API_SERVER variable to the FQDN of the API server (datacenter section)
 vim warehouses/src/warehouse/docker-compose.yml
@@ -84,36 +87,31 @@ make -j2 init-packages
 make mrproper
 ```
 
-- [https://www.eclipse.org/paho/index.php?page=clients/python/index.php]()
+- [The Paho Python Client](https://www.eclipse.org/paho/index.php?page=clients/python/index.php)
 - [mac80211_hwsim - software simulator of 802.11 radio(s) for mac80211](https://www.kernel.org/doc/html/latest/networking/mac80211_hwsim/mac80211_hwsim.html)
 
 ### TODO
 
-- [x] Clean msg send by pacakges to mqtt broker
-- [x] Define warehouse id in its app via docker env var in docker-compose.yml
-- [x] Define fqdn of REST API in warehouse app (require to finish dc infra)
-- [x] QoS management (package - broker - bridge)
-- [x] Delete unnecessary files (.old files)
-- [ ] Manage error on mqtt-bridge when API is unavailable (not crash)
+- [ ] Error handling on mqtt-bridge when API is unavailable (no crash)
 - [ ] Clean code and comment it
-- [ ] Improve README and docs
 
 ## Delivery section
+
+Soon
+
+NB : La partie `delivery` doit au moins être sur le même hôte que la partie `warehouses` afin de pouvoir accéder aux colis.
 
 ```bash
 # Install docker (cf. datacenter section)
 apt-get install -y docker-ce docker-ce-cli containerd.io
 
 # Add a new deliveryman on rabbitmq
-docker exec -ti datacenter-rabbit-1 rabbitmqctl add_user 'john' 'secret'
-docker exec -ti datacenter-rabbit-1 rabbitmqctl set_permissions -p '/' 'john' '' '^(amq\.gen.*|amq\.default)$' ''
+docker exec datacenter-rabbit-1 rabbitmqctl add_user 'john' 'secret'
+docker exec datacenter-rabbit-1 rabbitmqctl set_permissions -p '/' 'john' '' '^(amq\.gen.*|amq\.default)$' ''
 
 # Copy rabbitmq ca certificate from datacenter
 mkdir -p /etc/ssl/rabbitmq
 vim /etc/ssl/rabbitmq/ca.crt
-
-# Ensure that scripts are executable
-chmod u+x delivery/new-delivery.sh
 
 # Launch new deliveryman
 #  -u      Define the username of the deliveryman.
@@ -124,13 +122,9 @@ cd delivery
 ./new-delivery.sh -u john -p secret -w deliv1 -s amqp-broker.yousk.fr
 ```
 
-- [https://pika.readthedocs.io/en/stable/]()
-- [https://graphhopper.com/maps/?profile=small_truck&layer=OpenStreetMap]()
+- [Pika is a pure-Python implementation of the AMQP 0-9-1 protocol](https://pika.readthedocs.io/en/stable/)
+- [The GraphHopper Directions API](https://graphhopper.com/maps/?profile=small_truck&layer=OpenStreetMap)
 
 ### TODO
 
-- [x] Auth backend (in rabbitmq)
-- [x] TLS connection
-- [ ] Reliability (ack) > verif on connection lost
-- [ ] Add new tracks
-- [ ] Improve README and docs
+- [ ] Reliability check (ack) in case of loss of connection

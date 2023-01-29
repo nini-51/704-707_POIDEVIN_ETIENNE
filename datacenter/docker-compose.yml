@@ -24,9 +24,6 @@ services:
       - internal
     environment:
       AMQP_SERVER: rabbit
-    volumes:
-      - ./amqp-bridge/app:/app:ro # dev purpose
-    # entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       rabbit:
         condition: service_healthy
@@ -40,19 +37,14 @@ services:
       - internal
     volumes:
       - database:/var/lib/sqlite:rw
-      - ./api/app:/app:ro # dev purpose
-    # entrypoint: ["tail", "-f"] # dev purpose
 
   fox:
     build: web
     restart: always
     ports:
       - "80:8000"
-      # - "443:443"
     volumes:
       - database:/var/lib/sqlite:ro
-      - ./web/app:/app:ro # dev purpose
-    # entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       - octopus
 

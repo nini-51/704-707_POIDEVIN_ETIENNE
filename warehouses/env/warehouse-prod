@@ -1,4 +1,4 @@
-# Env vars for warehouse PROD1
+# Env vars for warehouse PROD
 
 NIC=wlan0
 LAN=fdcb:564e:f5e7:0::
