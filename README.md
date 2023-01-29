@@ -52,7 +52,7 @@ docker compose up -d
 
 ### TODO
 
-- [ ] Create web view
+- [x] Create web view
 - [x] Create PUT section of API
 - [x] Create DELETE section of API
 - [ ] Manage error on beaver when rabbitmq is unavailable (not crash)

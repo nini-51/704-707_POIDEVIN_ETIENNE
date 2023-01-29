@@ -31,10 +31,15 @@ mosquitto [
   URL="https://www.mosquitto.org/"
   label=<<font color='blue'><u>Mosquitto</u></font>>
 ]
-dnsmasq [
+radvd [
   target="_top"
-  URL="https://thekelleys.org.uk/dnsmasq/doc.html"
-  label=<<font color='blue'><u>dnsmasq</u></font>>
+  URL="https://radvd.litech.org/"
+  label=<<font color='blue'><u>radvd</u></font>>
+]
+bind9 [
+  target="_top"
+  URL="https://www.isc.org/bind/"
+  label=<<font color='blue'><u>bind9</u></font>>
 ]
 hostapd [
   target="_top"
@@ -66,7 +71,8 @@ client [label="Client" shape=box]
 
 cron -> wpa_supplicant [constraint=false]
 wpa_supplicant -> hostapd [dir=both color="black:black"]
-wpa_supplicant -> dnsmasq [dir=both color="black:black" ltail=cluster_package]
+wpa_supplicant -> radvd [dir=both color="black:black" ltail=cluster_package]
+wpa_supplicant -> bind9 [dir=both color="black:black" ltail=cluster_package]
 wpa_supplicant -> pyapp [constraint=false]
 pyapp -> mosquitto
 
