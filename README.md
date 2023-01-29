@@ -4,13 +4,24 @@ Ce projet vise à fournir un suivi multi-niveau pour les livraisons d'un vendeur
 
 Le premier niveau sera suivi grâce à un objet connecté embarqué dans chaque colis, tandis que le second niveau utilisera une application mobile pour suivre la livraison par le livreur.
 
-Les données seront collectées via des signaux de présence, des mises à jour régulières de la position et seront archivées à la livraison.
+Les données seront collectées via des signaux de présence et des mises à jour régulières de la position, puis archivées à la livraison.
 
 Les clients pourront suivre leur colis à l'aide d'une application WEB.
 
 ## Datacenter section
 
-Soon
+La partie `datacenter` est un simple docker compose avec une génération de certificat pour le service RabbitMQ.
+
+Il y a 3 ports d'écoute :
+
+- `80` : application web pour les clients
+- `8080` : serveur web pour l'api REST
+- `5671` : serveur RabbitMQ
+
+Pour les besoins de ce POC, l'hôte hébergeant cette partie répond aux fqdn suivants :
+
+- `api.yousk.fr`
+- `amqp-broker.yousk.fr`
 
 ```bash
 # Install docker
@@ -63,11 +74,14 @@ docker compose up -d
 - [ ] Error handling on beaver when rabbitmq is unavailable (no crash)
 - [ ] Managing http return codes in amqp-bridge
 - [ ] Added management of lost packages
-- [ ] Clean code and comment it
 
 ## Warehouses section
 
-Soon
+La partie `warehouses` hébergera l'ensemble des conteneurs lxc pour la simulation du transit des colis entre les entrepôts.
+
+Par défaut, 5 colis et 3 entrepôts sont générés, leur définition est faite par des fichiers dans le dossier `warehouses/env`.
+
+Le Makefile s'occupe de toute l'installation en supposant que nous sommes sur une distribution debian 11.
 
 ```bash
 # Install make tool
@@ -93,11 +107,12 @@ make mrproper
 ### TODO
 
 - [ ] Error handling on mqtt-bridge when API is unavailable (no crash)
-- [ ] Clean code and comment it
 
 ## Delivery section
 
-Soon
+La partie `delivery` va simuler un livreur qui ramasse tous les colis en attente dans un entrepôt, avant de choisir un itinéraire aléatoire dans le dossier `delivery/app/tracks`.
+
+Les livreurs sont simulés par des conteneurs docker éphémères et nécessitent le certificat du CA qui a généré le certificat du serveur RabbitMQ.
 
 NB : La partie `delivery` doit au moins être sur le même hôte que la partie `warehouses` afin de pouvoir accéder aux colis.
 
