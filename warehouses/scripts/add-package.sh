@@ -3,7 +3,7 @@
 function usage() {
   echo "
 Usage :
-  `basename $0` [-e <FILE>] [-h]
+  `basename $0` [-e <file>] [-h]
 
 Options :
   -e      Define the env file to use.

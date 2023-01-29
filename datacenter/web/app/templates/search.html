@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  {% if package['package_id'] %}
+    <h1>Parcel number {{ package['package_id'] }}</h1>
+  {% else %}
+    <h1>Track a parcel</h1>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if package['package_id'] %}
+    <td>Last location : {{ package['last_location'][0] }}</td>
+    <td>at {{ package['last_location'][1] }}</td>
+    <br>
+    <td>Status of your parcel : {{ package['status'] }}</td>
+    <br><br>
+  {% endif %}
+  <form class="form-inline my-2 my-lg-0" method="GET">
+    <input type="search" placeholder="Search" name="search">
+    <button type="submit">Search</button>
+  </form>
+{% endblock %}

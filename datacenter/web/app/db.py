@@ -1,9 +1,7 @@
 import sqlite3
 
-import click
 from flask import current_app
 from flask import g
-
 
 def get_db():
     """Connect to the application's configured database. The connection
@@ -18,7 +16,6 @@ def get_db():
 
     return g.db
 
-
 def close_db(e=None):
     """If this request connected to the database, close the
     connection.
@@ -28,10 +25,5 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
-
-def init_app(app):
-    """Register database functions with the Flask app. This is called by
-    the application factory.
-    """
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
+def init_app():
+    current_app.teardown_appcontext(close_db)

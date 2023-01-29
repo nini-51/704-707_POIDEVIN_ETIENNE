@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>All parcels</h1>
+{% endblock %}
+
+{% block content %}
+  <table border = 1>
+     <thead>
+        <td>Package number</td>
+        <td>Status</td>
+        <td>Last location</td>
+        <td>Timestamp</td>
+     </thead>
+
+     {% for row in packages %}
+        <tr>
+           <td>{{ row['package_id'] }}</td>
+           <td>{{ row['status'] }}</td>
+           <td>{{ row['last_location'][0] }}</td>
+           <td>{{ row['last_location'][1] }}</td>
+        </tr>
+     {% endfor %}
+  </table>
+{% endblock %}

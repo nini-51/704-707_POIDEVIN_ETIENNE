@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, json
 from werkzeug.exceptions import abort
-# from flask_cors import CORS
 
 from app.db import init_app, get_db
 
@@ -11,7 +10,6 @@ api.config.from_mapping(
     # path of the database
     DATABASE = "/var/lib/sqlite/delivery.sqlite"
 )
-# CORS(app, resources={r"/*": {"origins": "*"}})
 
 # register the database commands
 init_app(api)
@@ -21,12 +19,13 @@ def dict_factory(pkg):
     for key in pkg.keys():
         if key == 'warehouses':
             d[key] = json.loads(pkg[key])
+        elif key == 'last_location':
+            d[key] = json.loads(pkg[key])
         else:
             d[key] = pkg[key]
     return d
 
 def update_formating(package_id, payload, current):
-
     # Create content common
     content = {
         'package_id': package_id,
@@ -34,6 +33,7 @@ def update_formating(package_id, payload, current):
     }
 
     warehouses = json.loads(current['warehouses'])
+    last_location = json.loads(current['last_location'])
 
     match payload['status']:
         case 'in transit':
@@ -42,22 +42,22 @@ def update_formating(package_id, payload, current):
             else:
                 content['warehouses'] = warehouses
             content['deliver_id'] = None
-            content['last_location'] = payload['warehouse_id']
+            content['last_location'] = [payload['warehouse_id'], payload['timestamp']]
 
         case 'pick up':
             content['warehouses'] = warehouses
             content['deliver_id'] = payload['deliver_id']
-            content['last_location'] = current['last_location']
+            content['last_location'] = last_location
 
         case 'in delivery':
             content['warehouses'] = warehouses
             content['deliver_id'] = payload['deliver_id']
-            content['last_location'] = json.dumps(payload['coords'])
+            content['last_location'] = [payload['coords'], payload['timestamp']]
 
         case _:
             content['warehouses'] = warehouses
             content['deliver_id'] = payload['deliver_id']
-            content['last_location'] = current['last_location']
+            content['last_location'] = last_location
 
     return content
 
@@ -96,16 +96,16 @@ def new_package():
     pkg = {
         'package_id': payload['package_id'],
         'status': payload['status'],
-        'warehouses': [ (payload['warehouse_id'], payload['timestamp']) ],
+        'warehouses': [ [payload['warehouse_id'], payload['timestamp']] ],
         'deliver_id': None,
-        'last_location': payload['warehouse_id']
+        'last_location': [payload['warehouse_id'], payload['timestamp']]
     }
 
     db = get_db()
     try:
         db.execute(
             "INSERT INTO packages (package_id, status, warehouses, deliver_id, last_location) VALUES (?,?,?,?,?)",
-            (pkg['package_id'], pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location'])
+            (pkg['package_id'], pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], json.dumps(pkg['last_location']))
         )
         db.commit()
     except db.IntegrityError:
@@ -139,7 +139,7 @@ def update_package(package_id):
     try:
         db.execute(
             "UPDATE packages SET status = ?, warehouses = ?, deliver_id = ?, last_location = ? WHERE package_id = ?",
-            (pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], pkg['last_location'], pkg['package_id'].upper())
+            (pkg['status'], json.dumps(pkg['warehouses']), pkg['deliver_id'], json.dumps(pkg['last_location']), pkg['package_id'].upper())
         )
         db.commit()
     except db.DatabaseError as error:

@@ -3,7 +3,7 @@
 function usage() {
   echo "
 Usage :
-  `basename $0` [-u] <username> [-p] <password> [-w] <warehouse> [-s] <amqp_server> [-h]
+  `basename $0` [-u <username>] [-p <password>] [-w <warehouse>] [-s <amqp_server>] [-h]
 
 Options :
   -u      Define the username of the deliveryman.

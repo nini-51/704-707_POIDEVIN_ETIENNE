@@ -16,6 +16,6 @@ CREATE TABLE archives (
   package_id TEXT UNIQUE PRIMARY KEY NOT NULL,
   status TEXT NOT NULL,
   warehouses TEXT NOT NULL,
-  deliver_id TEXT,
+  deliver_id TEXT NOT NULL,
   last_location TEXT NOT NULL
 );

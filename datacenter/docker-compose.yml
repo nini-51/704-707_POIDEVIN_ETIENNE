@@ -52,7 +52,7 @@ services:
     volumes:
       - database:/var/lib/sqlite:ro
       - ./web/app:/app:ro # dev purpose
-    entrypoint: ["tail", "-f"] # dev purpose
+    # entrypoint: ["tail", "-f"] # dev purpose
     depends_on:
       - octopus
 
